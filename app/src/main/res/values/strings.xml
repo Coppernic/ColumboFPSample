@@ -1,5 +1,22 @@
 <resources>
     <string name="app_name">Columbo FP Sample</string>
     <string name="action_settings">Settings</string>
+    <string name="action_about">A propos</string>
     <string name="title_activity_preferences">Settings</string>
+    <string name="fp_record">Record finger print</string>
+    <string name="fp_touch">Touch sensor</string>
+    <string name="fp_title">Finger print</string>
+    <string name="fp_recorded">Finger print recorded successfully</string>
+    <string name="fp_bad">Too bad record : %1$s</string>
+    <string name="fp_error">Error : %1$s</string>
+    <string name="fingerprint_settings">Fingerprint Information</string>
+    <string name="pref_reader_name">pref_reader_name</string>
+    <string name="reader_name">Reader Name</string>
+    <string name="pref_serial_number">pref_serial_number</string>
+    <string name="serial_number">Serial Number</string>
+    <string name="pref_version">pref_version</string>
+    <string name="pref_firmware_version">pref_firmware_version</string>
+    <string name="firmware_version">Firmware Version</string>
+    <string name="pref_production_revision">pref_production_revision</string>
+    <string name="production_revision">Production Revision</string>
 </resources>

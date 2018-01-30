@@ -1,13 +1,14 @@
 package fr.coppernic.sample.columbofp.interactor;
 
+import android.app.Activity;
 import android.content.Context;
 
 import com.integratedbiometrics.ibscanultimate.IBScan;
 import com.integratedbiometrics.ibscanultimate.IBScanDevice;
-import com.integratedbiometrics.ibscanultimate.IBScanDeviceListener;
 import com.integratedbiometrics.ibscanultimate.IBScanException;
 import com.integratedbiometrics.ibscanultimate.IBScanListener;
 
+import fr.coppernic.sample.columbofp.settings.Settings;
 import fr.coppernic.sdk.power.impl.cone.ConePeripheral;
 import fr.coppernic.sdk.powermgmt.PowerMgmt;
 import fr.coppernic.sdk.powermgmt.PowerMgmtFactory;
@@ -24,7 +25,7 @@ import timber.log.Timber;
  * Created by michael on 26/01/18.
  */
 
-public class FingerPrintInteractorImpl implements FingerprintInteractor, IBScanDeviceListener, IBScanListener {
+public class FingerPrintInteractorImpl implements FingerprintInteractor, IBScanListener {
     Context context;
     private static final String PRODUCT_NAME = "COLUMBO";
     private static final String TAG = "FingerPrintInteractorImpl";
@@ -45,18 +46,27 @@ public class FingerPrintInteractorImpl implements FingerprintInteractor, IBScanD
 
     private FingerprintInteractor.Listener listener;
 
-    private boolean isOpen = false;
+    private FpDialogManager fpDialogManager;
 
-    public FingerPrintInteractorImpl(Context context){
+    private Settings settings;
 
+
+    public FingerPrintInteractorImpl(final Context context, final Listener listener){
+        this.listener = listener;
         this.context = context;
+        settings = new Settings(context);
         powerMgmt = PowerMgmtFactory.get().setContext(context).setNotifier(new PowerUtilsNotifier() {
             @Override
             public void onPowerUp(CpcResult.RESULT result, int i, int i1) {
                 if (result == CpcResult.RESULT.OK && (i == CpcDefinitions.VID_FP_COLOMBO_READER && i1 == CpcDefinitions.PID_FP_COLOMBO_READER)) {
                     Timber.d("Fp reader powered on");
+                    ((Activity)context).runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            listener.onReaderPoweredUp();
+                        }
+                    });
                 }
-
             }
 
             @Override
@@ -73,6 +83,15 @@ public class FingerPrintInteractorImpl implements FingerprintInteractor, IBScanD
         reader = IBScan.getInstance(context);
         reader.setContext(context);
         reader.setScanListener(this);
+        try {
+            IBScan.DeviceDesc deviceDesc = reader.getDeviceDescription(0);
+            settings.setReaderName(deviceDesc.productName);
+            settings.setFirmwareVersion(deviceDesc.fwVersion);
+            settings.setSerialNumber(deviceDesc.serialNumber);
+            settings.setProductionRevisionn(deviceDesc.devRevision);
+        } catch (IBScanException e) {
+            e.printStackTrace();
+        }
     }
 
     private void openInternal() {
@@ -90,7 +109,6 @@ public class FingerPrintInteractorImpl implements FingerprintInteractor, IBScanD
             }
 
             reader.openDeviceAsync(0);
-            isOpen = true;
         } catch (IBScanException e) {
             Timber.d("Failed to open devices");
         }
@@ -101,7 +119,7 @@ public class FingerPrintInteractorImpl implements FingerprintInteractor, IBScanD
      */
     public void close(){
         Timber.d( "CLOSE");
-        if (reader != null) {
+        if (readerDevice != null) {
             try {
                 readerDevice.close();
             } catch (IBScanException e) {
@@ -112,8 +130,7 @@ public class FingerPrintInteractorImpl implements FingerprintInteractor, IBScanD
     }
 
     @Override
-    public void captureFingerPrint(Listener listener) {
-        this.listener = listener;
+    public void captureFingerPrint() {
         initializeIbScanClass();
         openInternal();
     }
@@ -135,82 +152,18 @@ public class FingerPrintInteractorImpl implements FingerprintInteractor, IBScanD
         }
     }
 
+    @Override
+    public void tearDown() {
+        if(reader != null) {
+            close();
+            reader.setContext(null);
+            reader.setScanListener(null);
+            reader = null;
+        }
+        powerOn(false);
+    }
+
     /********************IB listener *******************/
-    @Override
-    public void deviceCommunicationBroken(IBScanDevice ibScanDevice) {
-
-    }
-
-    @Override
-    public void deviceImagePreviewAvailable(IBScanDevice ibScanDevice, IBScanDevice.ImageData imageData) {
-        /*
-		 * Preserve aspect ratio of image while resizing.
-		 */
-        /*int dstWidth      = mainView.getFpWidth();
-        int dstHeight     = mainView.getFpHeigth();
-        int dstHeightTemp = (dstWidth * imageData.height) / imageData.width;
-        if (dstHeightTemp > dstHeight)
-        {
-            dstWidth = (dstHeight * imageData.width) / imageData.height;
-        }
-        else
-        {
-            dstHeight = dstHeightTemp;
-        }*/
-
-		/*
-		 * Display image result.
-		 */
-        listener.onImagePreviewAvailable(imageData.toBitmap());
-
-    }
-
-    @Override
-    public void deviceFingerCountChanged(IBScanDevice ibScanDevice, IBScanDevice.FingerCountState fingerCountState) {
-
-    }
-
-    @Override
-    public void deviceFingerQualityChanged(IBScanDevice ibScanDevice, IBScanDevice.FingerQualityState[] fingerQualityStates) {
-
-    }
-
-    @Override
-    public void deviceAcquisitionBegun(IBScanDevice ibScanDevice, IBScanDevice.ImageType imageType) {
-
-    }
-
-    @Override
-    public void deviceAcquisitionCompleted(IBScanDevice ibScanDevice, IBScanDevice.ImageType imageType) {
-
-    }
-
-    @Override
-    public void deviceImageResultAvailable(IBScanDevice ibScanDevice, IBScanDevice.ImageData imageData, IBScanDevice.ImageType imageType, IBScanDevice.ImageData[] imageData1) {
-        if(listener != null) {
-            listener.onAcquisitionCompleted(imageData.toBitmap());
-        }
-    }
-
-    @Override
-    public void deviceImageResultExtendedAvailable(IBScanDevice ibScanDevice, IBScanException e, IBScanDevice.ImageData imageData, IBScanDevice.ImageType imageType, int i, IBScanDevice.ImageData[] imageData1, IBScanDevice.SegmentPosition[] segmentPositions) {
-
-    }
-
-    @Override
-    public void devicePlatenStateChanged(IBScanDevice ibScanDevice, IBScanDevice.PlatenState platenState) {
-
-    }
-
-    @Override
-    public void deviceWarningReceived(IBScanDevice ibScanDevice, IBScanException e) {
-
-    }
-
-    @Override
-    public void devicePressedKeyButtons(IBScanDevice ibScanDevice, int i) {
-
-    }
 
     @Override
     public void scanDeviceAttached(int i) {
@@ -241,25 +194,28 @@ public class FingerPrintInteractorImpl implements FingerprintInteractor, IBScanD
     public void scanDeviceOpenComplete(int i, IBScanDevice ibScanDevice, IBScanException e) {
         Timber.d("scanDeviceOpenComplete" );
         readerDevice = ibScanDevice;
-        listener.onReaderReady();
 
-        try {
-            IBScanDevice.ImageType imageType = IBScanDevice.ImageType.FLAT_SINGLE_FINGER;
-            if ((readerDevice != null) && (readerDevice.isOpened())) {
-                if (readerDevice.isCaptureAvailable(imageType, IBScanDevice.ImageResolution.RESOLUTION_500)) {
-                    readerDevice.beginCaptureImage(imageType, IBScanDevice.ImageResolution.RESOLUTION_500,
-                            IBScanDevice.OPTION_AUTO_CAPTURE | IBScanDevice.OPTION_AUTO_CONTRAST | IBScanDevice.OPTION_IGNORE_FINGER_COUNT);
 
-                    readerDevice.setScanDeviceListener(this);
-
-                }
-
+        /*((Activity)context).runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                fpDialogManager = new FpDialogManager(context, readerDevice);
+                fpDialogManager.show(new FpDialogManager.FingerPrintListener() {
+                    @Override
+                    public void onFingerPrintImageAvailable(Bitmap bmp) {
+                        listener.onAcquisitionCompleted(bmp);
+                    }
+                });
             }
-        }
-        catch (IBScanException ibse)
-        {
-            Timber.e("Could not begin capturing Finger Print (exeception: " + ibse.getType() + ")");
-        }
+        });*/
 
+        ((Activity)context).runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                listener.onReaderReady(readerDevice);
+                fpDialogManager = new FpDialogManager(context, readerDevice);
+                fpDialogManager.show(listener);
+            }
+        });
     }
 }

@@ -1,8 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-   <!-- <ListPreference
-        android:key="@string/pref_device_key"
-        android:title="@string/device"
-        android:entries="@array/devices"
-        android:entryValues="@array/devices" /> -->
-</PreferenceScreen>
+<android.support.v7.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+   <android.support.v7.preference.PreferenceCategory
+       android:title="@string/fingerprint_settings">
+      <android.support.v7.preference.Preference
+          android:key="@string/pref_reader_name"
+          android:title="@string/reader_name" />
+       <android.support.v7.preference.Preference
+           android:key="@string/pref_serial_number"
+           android:title="@string/serial_number" />
+       <android.support.v7.preference.Preference
+           android:key="@string/pref_firmware_version"
+           android:title="@string/firmware_version" />
+       <android.support.v7.preference.Preference
+           android:key="@string/pref_production_revision"
+           android:title="@string/production_revision" />
+   </android.support.v7.preference.PreferenceCategory>
+    <android.support.v7.preference.PreferenceCategory
+        android:title="@string/action_about">
+        <Preference
+            android:key="@string/pref_version"
+            android:title="Version"
+            />
+    </android.support.v7.preference.PreferenceCategory>
+</android.support.v7.preference.PreferenceScreen>

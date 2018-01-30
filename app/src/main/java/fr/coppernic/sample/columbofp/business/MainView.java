@@ -10,7 +10,9 @@ public interface MainView {
 
     void showFpImage(Bitmap fingerPrint);
 
-    int getFpWidth();
+    void startProgress();
 
-    int getFpHeigth();
+    void stopProgress();
+
+    void showFAB(boolean value);
 }

@@ -11,6 +11,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 
+import com.github.jorgecastilloprz.FABProgressCircle;
+
 import fr.coppernic.sample.columbofp.R;
 import fr.coppernic.sample.columbofp.presenter.MainPresenter;
 import fr.coppernic.sample.columbofp.presenter.MainPresenterImpl;
@@ -20,6 +22,9 @@ public class MainActivity extends AppCompatActivity implements MainView{
 
     private ImageView fingerPrintImage;
     private MainPresenter mainPresenter;
+    private FloatingActionButton fab;
+    private FABProgressCircle fabProgressCircle;
+    private boolean inProgress = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,15 +33,19 @@ public class MainActivity extends AppCompatActivity implements MainView{
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        mainPresenter = new MainPresenterImpl(this);
-        FloatingActionButton fab =  findViewById(R.id.fab);
+        fab =  findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 mainPresenter.captureFingerPrint();
             }
         });
+
+        fabProgressCircle = findViewById(R.id.fabProgressCircle);
+
         fingerPrintImage = findViewById(R.id.imageFingerPrint);
+
+        mainPresenter = new MainPresenterImpl(this);
     }
 
     @Override
@@ -70,11 +79,13 @@ public class MainActivity extends AppCompatActivity implements MainView{
     @Override
     protected void onStop() {
         mainPresenter.tearDown();
+        stopProgress();
         super.onStop();
     }
 
     private void showSettings() {
         Intent intent = new Intent(this, PreferencesActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
         startActivity(intent);
     }
 
@@ -84,12 +95,27 @@ public class MainActivity extends AppCompatActivity implements MainView{
     }
 
     @Override
-    public int getFpWidth() {
-        return 0;
+    public void startProgress() {
+        inProgress = true;
+        fabProgressCircle.show();
+        fab.setEnabled(false);
     }
 
     @Override
-    public int getFpHeigth() {
-        return 0;
+    public void stopProgress() {
+        inProgress = false;
+        fab.setEnabled(true);
+        fabProgressCircle.hide();
     }
+
+    @Override
+    public void showFAB(boolean value) {
+        if(value){
+            fab.show();
+        }else{
+            fab.hide();
+        }
+    }
+
+
 }
