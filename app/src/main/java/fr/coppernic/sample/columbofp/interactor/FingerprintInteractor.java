@@ -28,8 +28,10 @@ public interface FingerprintInteractor {
     void captureFingerPrint();
 
     void endCapture();
+
     /**
      * Powers on/off FingerPrint reader
+     *
      * @param on True on, false off
      */
     void powerOn(boolean on);

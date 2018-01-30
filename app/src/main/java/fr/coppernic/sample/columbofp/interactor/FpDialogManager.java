@@ -58,7 +58,7 @@ public class FpDialogManager implements IBScanDeviceListener {
         @Override
         public void onClick(@NonNull MaterialDialog materialDialog, @NonNull DialogAction dialogAction) {
             Log.v(TAG, "OnNegative");
-           // Schedulers.io().scheduleDirect(disposeAndClose);
+            // Schedulers.io().scheduleDirect(disposeAndClose);
         }
     };
     private TextView fpMessage;
@@ -88,13 +88,13 @@ public class FpDialogManager implements IBScanDeviceListener {
         reader = r;
         MaterialDialog.Builder builder = new MaterialDialog.Builder(context);
         dialog = builder.title(R.string.fp_title)
-            .customView(R.layout.dialog_finger_print, true)
-            .cancelable(true)
-            .negativeText(android.R.string.cancel)
-            .positiveText(android.R.string.ok)
-            .onNegative(negative)
-            .onPositive(positive)
-            .build();
+                .customView(R.layout.dialog_finger_print, true)
+                .cancelable(true)
+                .negativeText(android.R.string.cancel)
+                .positiveText(android.R.string.ok)
+                .onNegative(negative)
+                .onPositive(positive)
+                .build();
 
         if (dialog.getWindow() != null) {
             View v = dialog.getWindow().getDecorView();
@@ -143,7 +143,7 @@ public class FpDialogManager implements IBScanDeviceListener {
         return dialog;
     }
 
-    public void startCapture(){
+    public void startCapture() {
         try {
             captureOk.set(false);
             IBScanDevice.ImageType imageType = IBScanDevice.ImageType.FLAT_SINGLE_FINGER;
@@ -154,9 +154,7 @@ public class FpDialogManager implements IBScanDeviceListener {
                     reader.setScanDeviceListener(this);
                 }
             }
-        }
-        catch (IBScanException ibse)
-        {
+        } catch (IBScanException ibse) {
             Timber.e("Could not begin capturing Finger Print (exception: " + ibse.getType() + ")");
         }
     }
@@ -168,7 +166,7 @@ public class FpDialogManager implements IBScanDeviceListener {
 
     @Override
     public void deviceImagePreviewAvailable(IBScanDevice ibScanDevice, final IBScanDevice.ImageData imageData) {
-        ((Activity)context).runOnUiThread(new Runnable() {
+        ((Activity) context).runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mIvView.setImageBitmap(imageData.toBitmap());
@@ -199,7 +197,7 @@ public class FpDialogManager implements IBScanDeviceListener {
     @Override
     public void deviceImageResultAvailable(IBScanDevice ibScanDevice, final IBScanDevice.ImageData imageData, IBScanDevice.ImageType imageType, IBScanDevice.ImageData[] imageData1) {
 
-        ((Activity)context).runOnUiThread(new Runnable() {
+        ((Activity) context).runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 captureOk.set(true);

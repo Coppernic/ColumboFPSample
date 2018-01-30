@@ -51,7 +51,7 @@ public class FingerPrintInteractorImpl implements FingerprintInteractor, IBScanL
     private Settings settings;
 
 
-    public FingerPrintInteractorImpl(final Context context, final Listener listener){
+    public FingerPrintInteractorImpl(final Context context, final Listener listener) {
         this.listener = listener;
         this.context = context;
         settings = new Settings(context);
@@ -60,9 +60,10 @@ public class FingerPrintInteractorImpl implements FingerprintInteractor, IBScanL
             public void onPowerUp(CpcResult.RESULT result, int i, int i1) {
                 if (result == CpcResult.RESULT.OK && (i == CpcDefinitions.VID_FP_COLOMBO_READER && i1 == CpcDefinitions.PID_FP_COLOMBO_READER)) {
                     Timber.d("Fp reader powered on");
-                    ((Activity)context).runOnUiThread(new Runnable() {
+                    ((Activity) context).runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
+                            initializeIbScanClass();
                             listener.onReaderPoweredUp();
                         }
                     });
@@ -79,7 +80,7 @@ public class FingerPrintInteractorImpl implements FingerprintInteractor, IBScanL
     /**
      * Instantiates a IBScan object.
      */
-    public void initializeIbScanClass(){
+    public void initializeIbScanClass() {
         reader = IBScan.getInstance(context);
         reader.setContext(context);
         reader.setScanListener(this);
@@ -102,8 +103,8 @@ public class FingerPrintInteractorImpl implements FingerprintInteractor, IBScanL
                 return;
             }
 
-            if(readerDevice != null) {
-                if(readerDevice.isOpened())
+            if (readerDevice != null) {
+                if (readerDevice.isOpened())
                     close();
                 readerDevice = null;
             }
@@ -117,8 +118,8 @@ public class FingerPrintInteractorImpl implements FingerprintInteractor, IBScanL
     /**
      * Closes the communication with Finger Print reader
      */
-    public void close(){
-        Timber.d( "CLOSE");
+    public void close() {
+        Timber.d("CLOSE");
         if (readerDevice != null) {
             try {
                 readerDevice.close();
@@ -131,7 +132,6 @@ public class FingerPrintInteractorImpl implements FingerprintInteractor, IBScanL
 
     @Override
     public void captureFingerPrint() {
-        initializeIbScanClass();
         openInternal();
     }
 
@@ -142,19 +142,19 @@ public class FingerPrintInteractorImpl implements FingerprintInteractor, IBScanL
 
     @Override
     public void powerOn(boolean on) {
-        if(on) {
-           // ConePeripheral.FP_IB_COLOMBO_USB.on(context);
+        if (on) {
+            // ConePeripheral.FP_IB_COLOMBO_USB.on(context);
             powerMgmt.setPower(PeripheralTypesCone.FingerPrintReader,
                     ManufacturersCone.IntegratedBiometrics, ModelsCone.Columbo,
                     InterfacesCone.UsbGpioPort, on);
-        }else{
+        } else {
             ConePeripheral.FP_IB_COLOMBO_USB.off(context);
         }
     }
 
     @Override
     public void tearDown() {
-        if(reader != null) {
+        if (reader != null) {
             close();
             reader.setContext(null);
             reader.setScanListener(null);
@@ -167,17 +167,17 @@ public class FingerPrintInteractorImpl implements FingerprintInteractor, IBScanL
 
     @Override
     public void scanDeviceAttached(int i) {
-        Timber.d("New IB scanner device attached" );
+        Timber.d("New IB scanner device attached");
     }
 
     @Override
     public void scanDeviceDetached(int i) {
-        Timber.d("New IB scanner device detached" );
+        Timber.d("New IB scanner device detached");
     }
 
     @Override
     public void scanDevicePermissionGranted(int i, boolean b) {
-        Timber.d("scanDevicePermissionGranted" );
+        Timber.d("scanDevicePermissionGranted");
     }
 
     @Override
@@ -192,24 +192,9 @@ public class FingerPrintInteractorImpl implements FingerprintInteractor, IBScanL
 
     @Override
     public void scanDeviceOpenComplete(int i, IBScanDevice ibScanDevice, IBScanException e) {
-        Timber.d("scanDeviceOpenComplete" );
+        Timber.d("scanDeviceOpenComplete");
         readerDevice = ibScanDevice;
-
-
-        /*((Activity)context).runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                fpDialogManager = new FpDialogManager(context, readerDevice);
-                fpDialogManager.show(new FpDialogManager.FingerPrintListener() {
-                    @Override
-                    public void onFingerPrintImageAvailable(Bitmap bmp) {
-                        listener.onAcquisitionCompleted(bmp);
-                    }
-                });
-            }
-        });*/
-
-        ((Activity)context).runOnUiThread(new Runnable() {
+        ((Activity) context).runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 listener.onReaderReady(readerDevice);

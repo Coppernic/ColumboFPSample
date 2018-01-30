@@ -14,32 +14,32 @@ public class Settings {
     private Context context;
     private SharedPreferences sharedPreferences;
 
-    public Settings(Context context){
+    public Settings(Context context) {
         this.context = context;
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
     }
 
-    public void setReaderName(String value){
+    public void setReaderName(String value) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString(context.getString(R.string.pref_reader_name),value);
+        editor.putString(context.getString(R.string.pref_reader_name), value);
         editor.apply();
     }
 
-    public void setSerialNumber(String value){
+    public void setSerialNumber(String value) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString(context.getString(R.string.pref_serial_number),value);
+        editor.putString(context.getString(R.string.pref_serial_number), value);
         editor.apply();
     }
 
-    public void setFirmwareVersion(String value){
+    public void setFirmwareVersion(String value) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString(context.getString(R.string.pref_firmware_version),value);
+        editor.putString(context.getString(R.string.pref_firmware_version), value);
         editor.apply();
     }
 
-    public void setProductionRevisionn(String value){
+    public void setProductionRevisionn(String value) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString(context.getString(R.string.pref_production_revision),value);
+        editor.putString(context.getString(R.string.pref_production_revision), value);
         editor.apply();
     }
 }
