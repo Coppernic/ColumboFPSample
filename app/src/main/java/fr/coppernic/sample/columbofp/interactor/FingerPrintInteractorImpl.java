@@ -9,15 +9,12 @@ import com.integratedbiometrics.ibscanultimate.IBScanException;
 import com.integratedbiometrics.ibscanultimate.IBScanListener;
 
 import fr.coppernic.sample.columbofp.settings.Settings;
+import fr.coppernic.sdk.power.PowerManager;
+import fr.coppernic.sdk.power.api.PowerListener;
+import fr.coppernic.sdk.power.api.peripheral.Peripheral;
 import fr.coppernic.sdk.power.impl.cone.ConePeripheral;
 import fr.coppernic.sdk.powermgmt.PowerMgmt;
 import fr.coppernic.sdk.powermgmt.PowerMgmtFactory;
-import fr.coppernic.sdk.powermgmt.PowerUtilsNotifier;
-import fr.coppernic.sdk.powermgmt.cone.identifiers.InterfacesCone;
-import fr.coppernic.sdk.powermgmt.cone.identifiers.ManufacturersCone;
-import fr.coppernic.sdk.powermgmt.cone.identifiers.ModelsCone;
-import fr.coppernic.sdk.powermgmt.cone.identifiers.PeripheralTypesCone;
-import fr.coppernic.sdk.utils.core.CpcDefinitions;
 import fr.coppernic.sdk.utils.core.CpcResult;
 import timber.log.Timber;
 
@@ -26,9 +23,8 @@ import timber.log.Timber;
  */
 
 public class FingerPrintInteractorImpl implements FingerprintInteractor, IBScanListener {
-    Context context;
+    private Context context;
     private static final String PRODUCT_NAME = "COLUMBO";
-    private static final String TAG = "FingerPrintInteractorImpl";
     /**
      * A handle to the single instance of the IBScan class that will be the primary interface to
      * the library, for operations like getting the number of scanners (getDeviceCount()) and
@@ -48,33 +44,31 @@ public class FingerPrintInteractorImpl implements FingerprintInteractor, IBScanL
 
     private FpDialogManager fpDialogManager;
 
-    private Settings settings;
+    private final PowerListener powerListener = new PowerListener() {
+        @Override
+        public void onPowerUp(CpcResult.RESULT result, Peripheral peripheral) {
+            if(result == CpcResult.RESULT.OK){
+                Timber.d("Fp reader powered on");
+                ((Activity) context).runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        initializeIbScanClass();
+                        listener.onReaderPoweredUp();
+                    }
+                });
+            }
+        }
 
+        @Override
+        public void onPowerDown(CpcResult.RESULT result, Peripheral peripheral) {
+
+        }
+    };
 
     public FingerPrintInteractorImpl(final Context context, final Listener listener) {
         this.listener = listener;
         this.context = context;
-        settings = new Settings(context);
-        powerMgmt = PowerMgmtFactory.get().setContext(context).setNotifier(new PowerUtilsNotifier() {
-            @Override
-            public void onPowerUp(CpcResult.RESULT result, int i, int i1) {
-                if (result == CpcResult.RESULT.OK && (i == CpcDefinitions.VID_FP_COLOMBO_READER && i1 == CpcDefinitions.PID_FP_COLOMBO_READER)) {
-                    Timber.d("Fp reader powered on");
-                    ((Activity) context).runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            initializeIbScanClass();
-                            listener.onReaderPoweredUp();
-                        }
-                    });
-                }
-            }
-
-            @Override
-            public void onPowerDown(CpcResult.RESULT result, int i, int i1) {
-
-            }
-        }).build();
+        PowerManager.get().registerListener(powerListener);
     }
 
     /**
@@ -86,14 +80,32 @@ public class FingerPrintInteractorImpl implements FingerprintInteractor, IBScanL
         reader.setScanListener(this);
         try {
             IBScan.DeviceDesc deviceDesc = reader.getDeviceDescription(0);
+            Settings settings = new Settings(context);
             settings.setReaderName(deviceDesc.productName);
             settings.setFirmwareVersion(deviceDesc.fwVersion);
             settings.setSerialNumber(deviceDesc.serialNumber);
             settings.setProductionRevisionn(deviceDesc.devRevision);
         } catch (IBScanException e) {
             e.printStackTrace();
+            Timber.e(e.getMessage());
+            listener.onReaderReady(null);
         }
     }
+
+    /**
+     * Set The Finger Print Reader Property
+     */
+    private void initializeDeviceProperty(){
+        try {
+            Settings settings = new Settings(context);
+            readerDevice.setProperty(IBScanDevice.PropertyId.CAPTURE_TIMEOUT, settings.getCaptureTimeout());
+            readerDevice.setProperty(IBScanDevice.PropertyId.ENABLE_POWER_SAVE_MODE, settings.getPowerSaveMode());
+        } catch (IBScanException e) {
+            Timber.e("Fail to set reader property");
+            e.printStackTrace();
+        }
+    }
+
 
     private void openInternal() {
         try {
@@ -132,6 +144,9 @@ public class FingerPrintInteractorImpl implements FingerprintInteractor, IBScanL
 
     @Override
     public void captureFingerPrint() {
+        if(reader == null){
+            initializeIbScanClass();
+        }
         openInternal();
     }
 
@@ -143,10 +158,10 @@ public class FingerPrintInteractorImpl implements FingerprintInteractor, IBScanL
     @Override
     public void powerOn(boolean on) {
         if (on) {
-            // ConePeripheral.FP_IB_COLOMBO_USB.on(context);
-            powerMgmt.setPower(PeripheralTypesCone.FingerPrintReader,
+             ConePeripheral.FP_IB_COLOMBO_USB.on(context);
+            /*powerMgmt.setPower(PeripheralTypesCone.FingerPrintReader,
                     ManufacturersCone.IntegratedBiometrics, ModelsCone.Columbo,
-                    InterfacesCone.UsbGpioPort, on);
+                    InterfacesCone.UsbGpioPort, on);*/
         } else {
             ConePeripheral.FP_IB_COLOMBO_USB.off(context);
         }
@@ -155,12 +170,14 @@ public class FingerPrintInteractorImpl implements FingerprintInteractor, IBScanL
     @Override
     public void tearDown() {
         if (reader != null) {
+            fpDialogManager.dismiss();
             close();
             reader.setContext(null);
             reader.setScanListener(null);
             reader = null;
         }
         powerOn(false);
+        PowerMgmtFactory.get().setNotifier(null);
     }
 
     /********************IB listener *******************/
@@ -194,6 +211,7 @@ public class FingerPrintInteractorImpl implements FingerprintInteractor, IBScanL
     public void scanDeviceOpenComplete(int i, IBScanDevice ibScanDevice, IBScanException e) {
         Timber.d("scanDeviceOpenComplete");
         readerDevice = ibScanDevice;
+        initializeDeviceProperty();
         ((Activity) context).runOnUiThread(new Runnable() {
             @Override
             public void run() {

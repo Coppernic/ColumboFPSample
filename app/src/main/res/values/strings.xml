@@ -9,14 +9,32 @@
     <string name="fp_recorded">Finger print recorded successfully</string>
     <string name="fp_bad">Too bad record : %1$s</string>
     <string name="fp_error">Error : %1$s</string>
-    <string name="fingerprint_settings">Fingerprint Information</string>
+    <string name="fingerprint_settings">Fingerprint Settings</string>
     <string name="pref_reader_name">pref_reader_name</string>
     <string name="reader_name">Reader Name</string>
     <string name="pref_serial_number">pref_serial_number</string>
     <string name="serial_number">Serial Number</string>
+    <string name="pref_timeout">pref_timeoutr</string>
+    <string name="timeout">Capture Timeout</string>
+    <string name="pref_power_save_mode">pref_power_save_mode</string>
+    <string name="enable_power_save_mode">Power Save Mode</string>
     <string name="pref_version">pref_version</string>
     <string name="pref_firmware_version">pref_firmware_version</string>
     <string name="firmware_version">Firmware Version</string>
     <string name="pref_production_revision">pref_production_revision</string>
     <string name="production_revision">Production Revision</string>
+    <string name="opening_FP_reader">Opening FP reader...</string>
+    <string name="fingerprint_explanation">Press FingerPrint button </string>
+    <string name="wait_FP_powered">Waiting Fingerprint powered up...</string>
+    <string name="press_FP_button">Press FingerPrintButton</string>
+    <string name="FP_opened_error">Opening Fingerprint reader failed !</string>
+
+    <string-array name="acquisition_time_out">
+        <item>10</item>
+        <item>20</item>
+        <item>30</item>
+        <item>40</item>
+        <item>50</item>
+        <item>60</item>
+    </string-array>
 </resources>

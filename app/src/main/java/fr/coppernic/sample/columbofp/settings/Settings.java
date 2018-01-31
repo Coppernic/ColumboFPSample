@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.support.v7.preference.PreferenceManager;
 
+import java.util.Locale;
+
 import fr.coppernic.sample.columbofp.R;
 
 /**
@@ -41,5 +43,14 @@ public class Settings {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString(context.getString(R.string.pref_production_revision), value);
         editor.apply();
+    }
+
+    public String getCaptureTimeout(){
+        return sharedPreferences.getString(context.getString(R.string.pref_timeout), "10");
+    }
+
+    public String getPowerSaveMode(){
+        boolean powerSaveMode = sharedPreferences.getBoolean(context.getString(R.string.pref_power_save_mode), false);
+        return Boolean.toString(powerSaveMode).toUpperCase(Locale.US);
     }
 }

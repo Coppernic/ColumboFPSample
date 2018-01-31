@@ -7,7 +7,6 @@ import android.graphics.Bitmap;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.support.annotation.NonNull;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -27,7 +26,6 @@ import timber.log.Timber;
 
 public class FpDialogManager implements IBScanDeviceListener {
 
-    private static final String TAG = "DialogManager";
     private final Context context;
     private final MaterialDialog dialog;
     private final AtomicBoolean retry = new AtomicBoolean(false);
@@ -57,7 +55,7 @@ public class FpDialogManager implements IBScanDeviceListener {
     private final MaterialDialog.SingleButtonCallback negative = new MaterialDialog.SingleButtonCallback() {
         @Override
         public void onClick(@NonNull MaterialDialog materialDialog, @NonNull DialogAction dialogAction) {
-            Log.v(TAG, "OnNegative");
+            Timber.v("OnNegative");
             // Schedulers.io().scheduleDirect(disposeAndClose);
         }
     };
@@ -69,7 +67,7 @@ public class FpDialogManager implements IBScanDeviceListener {
     private final MaterialDialog.SingleButtonCallback positive = new MaterialDialog.SingleButtonCallback() {
         @Override
         public void onClick(@NonNull MaterialDialog materialDialog, @NonNull final DialogAction dialogAction) {
-            Log.v(TAG, "OnPositive");
+            Timber.v("OnPositive");
             if (!captureOk.get()) {
                 handler.postDelayed(new Runnable() {
                     @Override
@@ -112,25 +110,6 @@ public class FpDialogManager implements IBScanDeviceListener {
             dialog.show();
             startCapture();
         }
-
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-
-                if (!captureOk.get()) {
-                    try {
-                        if (reader.isCaptureActive())
-                            reader.cancelCaptureImage();
-                    } catch (IBScanException e) {
-                        e.printStackTrace();
-                    }
-                    mIvView.setImageResource(R.drawable.alert_circle_outline);
-                    dialog.setActionButton(DialogAction.POSITIVE, R.string.dlg_retry);
-                    dialog.getActionButton(DialogAction.POSITIVE).setEnabled(true);
-                    retry.set(true);
-                }
-            }
-        }, 5000);
     }
 
     public void dismiss() {
@@ -161,7 +140,7 @@ public class FpDialogManager implements IBScanDeviceListener {
 
     @Override
     public void deviceCommunicationBroken(IBScanDevice ibScanDevice) {
-
+        Timber.d("deviceCommunicationBroken");
     }
 
     @Override
@@ -191,12 +170,12 @@ public class FpDialogManager implements IBScanDeviceListener {
 
     @Override
     public void deviceAcquisitionCompleted(IBScanDevice ibScanDevice, IBScanDevice.ImageType imageType) {
-
+        Timber.d("deviceAcquisitionCompleted");
     }
 
     @Override
     public void deviceImageResultAvailable(IBScanDevice ibScanDevice, final IBScanDevice.ImageData imageData, IBScanDevice.ImageType imageType, IBScanDevice.ImageData[] imageData1) {
-
+        Timber.d("deviceImageResultAvailable");
         ((Activity) context).runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -215,7 +194,27 @@ public class FpDialogManager implements IBScanDeviceListener {
 
     @Override
     public void deviceImageResultExtendedAvailable(IBScanDevice ibScanDevice, IBScanException e, IBScanDevice.ImageData imageData, IBScanDevice.ImageType imageType, int i, IBScanDevice.ImageData[] imageData1, IBScanDevice.SegmentPosition[] segmentPositions) {
-
+        Timber.d("deviceImageResultExtendedAvailable");
+        if(e != null){
+            Timber.e(e.getMessage());
+        }
+        ((Activity) context).runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if(!captureOk.get()) {
+                    try {
+                        if (reader.isCaptureActive())
+                            reader.cancelCaptureImage();
+                    } catch (IBScanException e) {
+                        e.printStackTrace();
+                    }
+                    mIvView.setImageResource(R.drawable.alert_circle_outline);
+                    dialog.setActionButton(DialogAction.POSITIVE, R.string.dlg_retry);
+                    dialog.getActionButton(DialogAction.POSITIVE).setEnabled(true);
+                    retry.set(true);
+                }
+            }
+        });
     }
 
     @Override

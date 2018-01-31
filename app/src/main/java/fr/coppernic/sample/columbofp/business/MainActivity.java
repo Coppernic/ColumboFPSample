@@ -10,20 +10,22 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
-
-import com.github.jorgecastilloprz.FABProgressCircle;
+import android.widget.TextView;
 
 import fr.coppernic.sample.columbofp.R;
 import fr.coppernic.sample.columbofp.presenter.MainPresenter;
 import fr.coppernic.sample.columbofp.presenter.MainPresenterImpl;
 import fr.coppernic.sample.columbofp.settings.PreferencesActivity;
+import dmax.dialog.SpotsDialog;
+import timber.log.Timber;
 
 public class MainActivity extends AppCompatActivity implements MainView {
 
     private ImageView fingerPrintImage;
     private MainPresenter mainPresenter;
     private FloatingActionButton fab;
-    private FABProgressCircle fabProgressCircle;
+    private SpotsDialog spotsDialog;
+    private TextView tvMessage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,9 +42,9 @@ public class MainActivity extends AppCompatActivity implements MainView {
             }
         });
 
-        fabProgressCircle = findViewById(R.id.fabProgressCircle);
-
         fingerPrintImage = findViewById(R.id.imageFingerPrint);
+
+        tvMessage = findViewById(R.id.tvMessage);
 
         mainPresenter = new MainPresenterImpl(this);
     }
@@ -71,21 +73,17 @@ public class MainActivity extends AppCompatActivity implements MainView {
 
     @Override
     protected void onStart() {
+        Timber.d("onStart");
         super.onStart();
         mainPresenter.setUp();
     }
 
     @Override
     protected void onStop() {
+        Timber.d("onStop");
         mainPresenter.tearDown();
         stopProgress();
         super.onStop();
-    }
-
-    private void showSettings() {
-        Intent intent = new Intent(this, PreferencesActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-        startActivity(intent);
     }
 
     @Override
@@ -95,14 +93,17 @@ public class MainActivity extends AppCompatActivity implements MainView {
 
     @Override
     public void startProgress() {
-        fabProgressCircle.show();
+        dismissSpots();
         fab.setEnabled(false);
+        spotsDialog = new SpotsDialog(this, R.style.ProgressDialog);
+        spotsDialog.show();
+        spotsDialog.setMessage(getString(R.string.opening_FP_reader));
     }
 
     @Override
     public void stopProgress() {
         fab.setEnabled(true);
-        fabProgressCircle.hide();
+        dismissSpots();
     }
 
     @Override
@@ -114,5 +115,21 @@ public class MainActivity extends AppCompatActivity implements MainView {
         }
     }
 
+    @Override
+    public void showMessage(String value) {
+        tvMessage.setText(value);
+    }
+
+    private void dismissSpots() {
+        if (spotsDialog != null) {
+            spotsDialog.dismiss();
+        }
+    }
+
+    private void showSettings() {
+        Intent intent = new Intent(this, PreferencesActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+        startActivity(intent);
+    }
 
 }

@@ -15,4 +15,7 @@ public interface MainView {
     void stopProgress();
 
     void showFAB(boolean value);
+
+    void showMessage(String value);
+
 }

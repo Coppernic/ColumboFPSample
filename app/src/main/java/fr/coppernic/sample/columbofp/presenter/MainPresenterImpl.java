@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 
 import com.integratedbiometrics.ibscanultimate.IBScanDevice;
 
+import fr.coppernic.sample.columbofp.R;
 import fr.coppernic.sample.columbofp.business.MainView;
 import fr.coppernic.sample.columbofp.interactor.FingerPrintInteractorImpl;
 import fr.coppernic.sample.columbofp.interactor.FingerprintInteractor;
@@ -14,12 +15,12 @@ import fr.coppernic.sample.columbofp.interactor.FingerprintInteractor;
  */
 
 public class MainPresenterImpl implements MainPresenter, FingerprintInteractor.Listener {
-    private static final String TAG = "MainPresenterImpl";
     private FingerprintInteractor fingerprintInteractor;
     private MainView mainView;
 
     public MainPresenterImpl(MainView mainView) {
         this.mainView = mainView;
+        mainView.showMessage(((Context)mainView).getString(R.string.wait_FP_powered));
         mainView.showFAB(false);
         fingerprintInteractor = new FingerPrintInteractorImpl((Context) mainView, this);
     }
@@ -32,6 +33,7 @@ public class MainPresenterImpl implements MainPresenter, FingerprintInteractor.L
 
     @Override
     public void setUp() {
+        mainView.showFAB(false);
         fingerprintInteractor.powerOn(true);
     }
 
@@ -43,6 +45,9 @@ public class MainPresenterImpl implements MainPresenter, FingerprintInteractor.L
     @Override
     public void onReaderReady(final IBScanDevice reader) {
         mainView.stopProgress();
+        if(reader == null){//init reader failed
+            mainView.showMessage(((Context)mainView).getString(R.string.FP_opened_error));
+        }
     }
 
     @Override
@@ -54,5 +59,6 @@ public class MainPresenterImpl implements MainPresenter, FingerprintInteractor.L
     @Override
     public void onReaderPoweredUp() {
         mainView.showFAB(true);
+        mainView.showMessage(((Context)mainView).getString(R.string.press_FP_button));
     }
 }

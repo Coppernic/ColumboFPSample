@@ -44,7 +44,7 @@ dependencies {
     compile 'com.android.support:preference-v7:26.1.0'
     compile 'com.android.support:preference-v14:26.1.0'
 
-    implementation 'com.github.jorgecastilloprz:fabprogresscircle:1.01'
+    implementation 'com.github.d-max:spots-dialog:0.7@aar'
 
     // Coppernic
     implementation(group: 'fr.coppernic.sdk.cpcutils', name: 'CpcUtilsLib', version: '6.13.0', ext: 'aar')

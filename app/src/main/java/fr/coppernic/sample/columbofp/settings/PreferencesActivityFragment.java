@@ -36,6 +36,7 @@ public class PreferencesActivityFragment extends PreferenceFragmentCompat {
         bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_serial_number)));
         bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_firmware_version)));
         bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_production_revision)));
+        bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_timeout)));
         bindPreferenceSummaryToValue(findPreference(key_version));
     }
 
