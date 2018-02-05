@@ -28,7 +28,6 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margin"
-        app:backgroundTint="@color/colorPrimary"
         app:srcCompat="@drawable/ic_fingerprint_white_100dp" />
 
 </android.support.design.widget.CoordinatorLayout>

@@ -159,9 +159,6 @@ public class FingerPrintInteractorImpl implements FingerprintInteractor, IBScanL
     public void powerOn(boolean on) {
         if (on) {
              ConePeripheral.FP_IB_COLOMBO_USB.on(context);
-            /*powerMgmt.setPower(PeripheralTypesCone.FingerPrintReader,
-                    ManufacturersCone.IntegratedBiometrics, ModelsCone.Columbo,
-                    InterfacesCone.UsbGpioPort, on);*/
         } else {
             ConePeripheral.FP_IB_COLOMBO_USB.off(context);
         }
@@ -170,11 +167,13 @@ public class FingerPrintInteractorImpl implements FingerprintInteractor, IBScanL
     @Override
     public void tearDown() {
         if (reader != null) {
-            fpDialogManager.dismiss();
             close();
             reader.setContext(null);
             reader.setScanListener(null);
             reader = null;
+        }
+        if(fpDialogManager != null){
+            fpDialogManager.dismiss();
         }
         powerOn(false);
         PowerMgmtFactory.get().setNotifier(null);

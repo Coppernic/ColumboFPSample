@@ -26,7 +26,7 @@
     <string name="opening_FP_reader">Opening FP reader...</string>
     <string name="fingerprint_explanation">Press FingerPrint button </string>
     <string name="wait_FP_powered">Waiting Fingerprint powered up...</string>
-    <string name="press_FP_button">Press FingerPrintButton</string>
+    <string name="press_FP_button">Press Fingerprint button</string>
     <string name="FP_opened_error">Opening Fingerprint reader failed !</string>
 
     <string-array name="acquisition_time_out">
