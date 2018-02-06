@@ -1,4 +1,4 @@
-package fr.coppernic.sample.columbofp.interactor;
+package fr.coppernic.sample.columbofp.fingerprint;
 
 import android.graphics.Bitmap;
 
@@ -8,7 +8,7 @@ import com.integratedbiometrics.ibscanultimate.IBScanDevice;
  * Created by michael on 26/01/18.
  */
 
-public interface FingerprintInteractor {
+public interface FingerPrintInterface {
 
     interface Listener {
         /**
@@ -29,12 +29,7 @@ public interface FingerprintInteractor {
 
     void endCapture();
 
-    /**
-     * Powers on/off FingerPrint reader
-     *
-     * @param on True on, false off
-     */
-    void powerOn(boolean on);
+    void setUp();
 
     void tearDown();
 }

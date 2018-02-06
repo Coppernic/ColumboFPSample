@@ -1,4 +1,4 @@
-package fr.coppernic.sample.columbofp.interactor;
+package fr.coppernic.sample.columbofp.fingerprint;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -17,40 +17,25 @@ import com.integratedbiometrics.ibscanultimate.IBScanDevice;
 import com.integratedbiometrics.ibscanultimate.IBScanDeviceListener;
 import com.integratedbiometrics.ibscanultimate.IBScanException;
 
+import java.lang.ref.WeakReference;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import fr.coppernic.sample.columbofp.R;
 import fr.coppernic.sdk.utils.util.Preconditions;
-import io.reactivex.disposables.Disposable;
 import timber.log.Timber;
 
 public class FpDialogManager implements IBScanDeviceListener {
 
-    private final Context context;
+    private final WeakReference<Context> context;
     private final MaterialDialog dialog;
     private final AtomicBoolean retry = new AtomicBoolean(false);
     private final AtomicBoolean captureOk = new AtomicBoolean(false);
     private final Handler handler = new Handler();
     private final IBScanDevice reader;
-    private FingerprintInteractor.Listener listener;
+    private FingerPrintInterface.Listener listener;
 
     private Bitmap currentImage;
-    private Disposable disposable;
-    private final Runnable disposeAndClose = new Runnable() {
-        @Override
-        public void run() {
-            if (disposable != null) {
-                disposable.dispose();
-            }
-            if (reader != null) {
-                try {
-                    reader.close();
-                } catch (IBScanException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-    };
+
     @SuppressWarnings("FieldCanBeLocal")
     private final MaterialDialog.SingleButtonCallback negative = new MaterialDialog.SingleButtonCallback() {
         @Override
@@ -61,7 +46,6 @@ public class FpDialogManager implements IBScanDeviceListener {
     };
     private TextView fpMessage;
     private ImageView mIvView;
-    private FingerPrintListener fingerPrintListener;
 
     @SuppressWarnings("FieldCanBeLocal")
     private final MaterialDialog.SingleButtonCallback positive = new MaterialDialog.SingleButtonCallback() {
@@ -81,8 +65,8 @@ public class FpDialogManager implements IBScanDeviceListener {
         }
     };
 
-    public FpDialogManager(Context context, IBScanDevice r) {
-        this.context = context;
+    FpDialogManager(Context context, IBScanDevice r) {
+        this.context = new WeakReference<>(context);
         reader = r;
         MaterialDialog.Builder builder = new MaterialDialog.Builder(context);
         dialog = builder.title(R.string.fp_title)
@@ -101,7 +85,7 @@ public class FpDialogManager implements IBScanDeviceListener {
         }
     }
 
-    public void show(FingerprintInteractor.Listener listener) {
+    void show(FingerPrintInterface.Listener listener) {
         this.listener = Preconditions.checkNotNull(listener);
         if (dialog != null) {
             dialog.getActionButton(DialogAction.POSITIVE).setEnabled(false);
@@ -112,17 +96,20 @@ public class FpDialogManager implements IBScanDeviceListener {
         }
     }
 
-    public void dismiss() {
+    void dismiss() {
+        Timber.d("dismiss");
         if (dialog != null) {
             dialog.dismiss();
         }
+        reader.setScanDeviceListener(null);
+        listener = null;
     }
 
     public Dialog getDialog() {
         return dialog;
     }
 
-    public void startCapture() {
+    private void startCapture() {
         try {
             captureOk.set(false);
             IBScanDevice.ImageType imageType = IBScanDevice.ImageType.FLAT_SINGLE_FINGER;
@@ -145,7 +132,7 @@ public class FpDialogManager implements IBScanDeviceListener {
 
     @Override
     public void deviceImagePreviewAvailable(IBScanDevice ibScanDevice, final IBScanDevice.ImageData imageData) {
-        ((Activity) context).runOnUiThread(new Runnable() {
+        ((Activity) context.get()).runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mIvView.setImageBitmap(imageData.toBitmap());
@@ -176,7 +163,7 @@ public class FpDialogManager implements IBScanDeviceListener {
     @Override
     public void deviceImageResultAvailable(IBScanDevice ibScanDevice, final IBScanDevice.ImageData imageData, IBScanDevice.ImageType imageType, IBScanDevice.ImageData[] imageData1) {
         Timber.d("deviceImageResultAvailable");
-        ((Activity) context).runOnUiThread(new Runnable() {
+        ((Activity) context.get()).runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 captureOk.set(true);
@@ -195,13 +182,13 @@ public class FpDialogManager implements IBScanDeviceListener {
     @Override
     public void deviceImageResultExtendedAvailable(IBScanDevice ibScanDevice, IBScanException e, IBScanDevice.ImageData imageData, IBScanDevice.ImageType imageType, int i, IBScanDevice.ImageData[] imageData1, IBScanDevice.SegmentPosition[] segmentPositions) {
         Timber.d("deviceImageResultExtendedAvailable");
-        if(e != null){
+        if (e != null) {
             Timber.e(e.getMessage());
         }
-        ((Activity) context).runOnUiThread(new Runnable() {
+        ((Activity) context.get()).runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                if(!captureOk.get()) {
+                if (!captureOk.get()) {
                     try {
                         if (reader.isCaptureActive())
                             reader.cancelCaptureImage();
@@ -230,9 +217,5 @@ public class FpDialogManager implements IBScanDeviceListener {
     @Override
     public void devicePressedKeyButtons(IBScanDevice ibScanDevice, int i) {
 
-    }
-
-    public interface FingerPrintListener {
-        void onFingerPrintImageAvailable(Bitmap bmp);
     }
 }

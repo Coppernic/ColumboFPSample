@@ -5,8 +5,6 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 
-import fr.coppernic.sample.columbofp.business.MainActivity;
-
 /**
  * Created by michael on 31/01/18.
  */

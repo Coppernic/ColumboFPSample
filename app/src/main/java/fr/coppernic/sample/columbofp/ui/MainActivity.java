@@ -1,4 +1,4 @@
-package fr.coppernic.sample.columbofp.business;
+package fr.coppernic.sample.columbofp.ui;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -12,20 +12,22 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import fr.coppernic.sample.columbofp.R;
-import fr.coppernic.sample.columbofp.presenter.MainPresenter;
-import fr.coppernic.sample.columbofp.presenter.MainPresenterImpl;
-import fr.coppernic.sample.columbofp.settings.PreferencesActivity;
+import com.integratedbiometrics.ibscanultimate.IBScanDevice;
+
 import dmax.dialog.SpotsDialog;
+import fr.coppernic.sample.columbofp.R;
+import fr.coppernic.sample.columbofp.fingerprint.FingerPrint;
+import fr.coppernic.sample.columbofp.fingerprint.FingerPrintInterface;
+import fr.coppernic.sample.columbofp.settings.PreferencesActivity;
 import timber.log.Timber;
 
-public class MainActivity extends AppCompatActivity implements MainView {
+public class MainActivity extends AppCompatActivity implements FingerPrintInterface.Listener {
 
     private ImageView fingerPrintImage;
-    private MainPresenter mainPresenter;
     private FloatingActionButton fab;
     private SpotsDialog spotsDialog;
     private TextView tvMessage;
+    private FingerPrintInterface fingerprintInteractor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,7 +40,8 @@ public class MainActivity extends AppCompatActivity implements MainView {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mainPresenter.captureFingerPrint();
+                startProgress();
+                fingerprintInteractor.captureFingerPrint();
             }
         });
 
@@ -46,7 +49,9 @@ public class MainActivity extends AppCompatActivity implements MainView {
 
         tvMessage = findViewById(R.id.tvMessage);
 
-        mainPresenter = new MainPresenterImpl(this);
+        showFAB(false);
+
+        fingerprintInteractor = new FingerPrint(MainActivity.this, getApplicationContext(), this);
     }
 
     @Override
@@ -72,26 +77,39 @@ public class MainActivity extends AppCompatActivity implements MainView {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+    }
+
+    @Override
     protected void onStart() {
         Timber.d("onStart");
         super.onStart();
-        mainPresenter.setUp();
+        showFAB(false);
+        fingerprintInteractor.setUp();
     }
 
     @Override
     protected void onStop() {
         Timber.d("onStop");
-        mainPresenter.tearDown();
+        fingerprintInteractor.tearDown();
         stopProgress();
         super.onStop();
     }
 
     @Override
+    public void onBackPressed() {
+        Timber.d("onBackPressed");
+        fingerprintInteractor.tearDown();
+        super.onBackPressed();
+    }
+
+
     public void showFpImage(Bitmap fingerPrint) {
         fingerPrintImage.setImageBitmap(fingerPrint);
     }
 
-    @Override
+
     public void startProgress() {
         dismissSpots();
         fab.setEnabled(false);
@@ -100,22 +118,24 @@ public class MainActivity extends AppCompatActivity implements MainView {
         spotsDialog.setMessage(getString(R.string.opening_FP_reader));
     }
 
-    @Override
+
     public void stopProgress() {
         fab.setEnabled(true);
         dismissSpots();
     }
 
-    @Override
+
     public void showFAB(boolean value) {
         if (value) {
             fab.show();
+            showMessage(getString(R.string.press_FP_button));
         } else {
+            showMessage(getString(R.string.wait_FP_powered));
             fab.hide();
         }
     }
 
-    @Override
+
     public void showMessage(String value) {
         tvMessage.setText(value);
     }
@@ -130,6 +150,25 @@ public class MainActivity extends AppCompatActivity implements MainView {
         Intent intent = new Intent(this, PreferencesActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
         startActivity(intent);
+    }
+
+    @Override
+    public void onReaderReady(IBScanDevice reader) {
+        stopProgress();
+        if (reader == null) {//init reader failed
+            showMessage(getString(R.string.FP_opened_error));
+        }
+    }
+
+    @Override
+    public void onAcquisitionCompleted(Bitmap fingerPrint) {
+        showFpImage(fingerPrint);
+        fingerprintInteractor.endCapture();
+    }
+
+    @Override
+    public void onReaderPoweredUp() {
+        showFAB(true);
     }
 
 }

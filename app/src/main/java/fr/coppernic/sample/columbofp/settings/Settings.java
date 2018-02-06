@@ -45,11 +45,11 @@ public class Settings {
         editor.apply();
     }
 
-    public String getCaptureTimeout(){
+    public String getCaptureTimeout() {
         return sharedPreferences.getString(context.getString(R.string.pref_timeout), "10");
     }
 
-    public String getPowerSaveMode(){
+    public String getPowerSaveMode() {
         boolean powerSaveMode = sharedPreferences.getBoolean(context.getString(R.string.pref_power_save_mode), false);
         return Boolean.toString(powerSaveMode).toUpperCase(Locale.US);
     }
