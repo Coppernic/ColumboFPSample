@@ -8,50 +8,67 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.integratedbiometrics.ibscanultimate.IBScanDevice;
-
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 import dmax.dialog.SpotsDialog;
 import fr.coppernic.sample.columbofp.R;
 import fr.coppernic.sample.columbofp.fingerprint.FingerPrint;
-import fr.coppernic.sample.columbofp.fingerprint.FingerPrintInterface;
+import fr.coppernic.sample.columbofp.fingerprint.IBScanFingerPrint;
 import fr.coppernic.sample.columbofp.settings.PreferencesActivity;
+import fr.coppernic.sdk.power.PowerManager;
+import fr.coppernic.sdk.power.api.PowerListener;
+import fr.coppernic.sdk.power.api.peripheral.Peripheral;
+import fr.coppernic.sdk.power.impl.cone.ConePeripheral;
+import fr.coppernic.sdk.utils.core.CpcResult;
 import timber.log.Timber;
 
-public class MainActivity extends AppCompatActivity implements FingerPrintInterface.Listener {
+public class MainActivity extends AppCompatActivity {
 
-    private ImageView fingerPrintImage;
-    private FloatingActionButton fab;
+    @BindView(R.id.fab)
+    FloatingActionButton fab;
+    @BindView(R.id.tvMessage)
+    TextView tvMessage;
+    @BindView(R.id.toolbar)
+    Toolbar toolbar;
+    @BindView(R.id.imageFingerPrint)
+    ImageView fingerPrintImage;
+
+    private FingerPrint fingerprintReader;
     private SpotsDialog spotsDialog;
-    private TextView tvMessage;
-    private FingerPrintInterface fingerprintInteractor;
+
+    private final PowerListener powerListener = new PowerListener() {
+        @Override
+        public void onPowerUp(CpcResult.RESULT result, Peripheral peripheral) {
+            if (result == CpcResult.RESULT.OK) {
+                Timber.d("Fp reader powered on");
+                fingerprintReader.setUp();
+                showFAB(true);
+            }
+            else{
+                showMessage("Error powering on reader. Make sure System Services is installed on the device");
+            }
+        }
+
+        @Override
+        public void onPowerDown(CpcResult.RESULT result, Peripheral peripheral) {
+            Timber.d("Fp reader powered off");
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = findViewById(R.id.toolbar);
+        ButterKnife.bind(this);
+
         setSupportActionBar(toolbar);
-
-        fab = findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startProgress();
-                fingerprintInteractor.captureFingerPrint();
-            }
-        });
-
-        fingerPrintImage = findViewById(R.id.imageFingerPrint);
-
-        tvMessage = findViewById(R.id.tvMessage);
-
         showFAB(false);
 
-        fingerprintInteractor = new FingerPrint(MainActivity.this, getApplicationContext(), this);
+        fingerprintReader = new IBScanFingerPrint(this, fpListener);
     }
 
     @Override
@@ -86,22 +103,33 @@ public class MainActivity extends AppCompatActivity implements FingerPrintInterf
         Timber.d("onStart");
         super.onStart();
         showFAB(false);
-        fingerprintInteractor.setUp();
+        PowerManager.get().registerListener(powerListener);
+        powerOn(true);
     }
 
     @Override
     protected void onStop() {
         Timber.d("onStop");
-        fingerprintInteractor.tearDown();
+        fingerprintReader.tearDown();
+        powerOn(false);
+        PowerManager.get().unregisterListener(powerListener);
         stopProgress();
         super.onStop();
     }
 
-    @Override
-    public void onBackPressed() {
-        Timber.d("onBackPressed");
-        fingerprintInteractor.tearDown();
-        super.onBackPressed();
+    @OnClick(R.id.fab)
+    void captureFP(){
+        startProgress();
+        fingerprintReader.capture();
+    }
+
+
+    private void powerOn(boolean on) {
+        if (on) {
+            ConePeripheral.FP_IB_COLOMBO_USB.on(this);
+        } else {
+            ConePeripheral.FP_IB_COLOMBO_USB.off(this);
+        }
     }
 
 
@@ -152,23 +180,21 @@ public class MainActivity extends AppCompatActivity implements FingerPrintInterf
         startActivity(intent);
     }
 
-    @Override
-    public void onReaderReady(IBScanDevice reader) {
-        stopProgress();
-        if (reader == null) {//init reader failed
-            showMessage(getString(R.string.FP_opened_error));
+    FingerPrint.Listener fpListener = new FingerPrint.Listener() {
+        @Override
+        public void onReaderReady(CpcResult.RESULT res) {
+            stopProgress();
+            if (res != CpcResult.RESULT.OK) {//init reader failed
+                showMessage(getString(R.string.FP_opened_error));
+            }
         }
-    }
 
-    @Override
-    public void onAcquisitionCompleted(Bitmap fingerPrint) {
-        showFpImage(fingerPrint);
-        fingerprintInteractor.endCapture();
-    }
+        @Override
+        public void onAcquisitionCompleted(Bitmap fingerPrint) {
+            showFpImage(fingerPrint);
+            fingerprintReader.stopCapture();
+        }
+    };
 
-    @Override
-    public void onReaderPoweredUp() {
-        showFAB(true);
-    }
 
 }

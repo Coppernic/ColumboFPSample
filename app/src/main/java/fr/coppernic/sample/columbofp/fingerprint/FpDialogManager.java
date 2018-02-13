@@ -24,7 +24,7 @@ import fr.coppernic.sample.columbofp.R;
 import fr.coppernic.sdk.utils.util.Preconditions;
 import timber.log.Timber;
 
-public class FpDialogManager implements IBScanDeviceListener {
+public class FpDialogManager {
 
     private final WeakReference<Context> context;
     private final MaterialDialog dialog;
@@ -32,7 +32,7 @@ public class FpDialogManager implements IBScanDeviceListener {
     private final AtomicBoolean captureOk = new AtomicBoolean(false);
     private final Handler handler = new Handler();
     private final IBScanDevice reader;
-    private FingerPrintInterface.Listener listener;
+    private FingerPrint.Listener listener;
 
     private Bitmap currentImage;
 
@@ -85,7 +85,7 @@ public class FpDialogManager implements IBScanDeviceListener {
         }
     }
 
-    void show(FingerPrintInterface.Listener listener) {
+    void show(FingerPrint.Listener listener) {
         this.listener = Preconditions.checkNotNull(listener);
         if (dialog != null) {
             dialog.getActionButton(DialogAction.POSITIVE).setEnabled(false);
@@ -117,7 +117,7 @@ public class FpDialogManager implements IBScanDeviceListener {
                 if (reader.isCaptureAvailable(imageType, IBScanDevice.ImageResolution.RESOLUTION_500)) {
                     reader.beginCaptureImage(imageType, IBScanDevice.ImageResolution.RESOLUTION_500,
                             IBScanDevice.OPTION_AUTO_CAPTURE | IBScanDevice.OPTION_AUTO_CONTRAST | IBScanDevice.OPTION_IGNORE_FINGER_COUNT);
-                    reader.setScanDeviceListener(this);
+                    reader.setScanDeviceListener(ibScanListener);
                 }
             }
         } catch (IBScanException ibse) {
@@ -125,97 +125,100 @@ public class FpDialogManager implements IBScanDeviceListener {
         }
     }
 
-    @Override
-    public void deviceCommunicationBroken(IBScanDevice ibScanDevice) {
-        Timber.d("deviceCommunicationBroken");
-    }
-
-    @Override
-    public void deviceImagePreviewAvailable(IBScanDevice ibScanDevice, final IBScanDevice.ImageData imageData) {
-        ((Activity) context.get()).runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                mIvView.setImageBitmap(imageData.toBitmap());
-            }
-        });
-    }
-
-    @Override
-    public void deviceFingerCountChanged(IBScanDevice ibScanDevice, IBScanDevice.FingerCountState fingerCountState) {
-
-    }
-
-    @Override
-    public void deviceFingerQualityChanged(IBScanDevice ibScanDevice, IBScanDevice.FingerQualityState[] fingerQualityStates) {
-
-    }
-
-    @Override
-    public void deviceAcquisitionBegun(IBScanDevice ibScanDevice, IBScanDevice.ImageType imageType) {
-
-    }
-
-    @Override
-    public void deviceAcquisitionCompleted(IBScanDevice ibScanDevice, IBScanDevice.ImageType imageType) {
-        Timber.d("deviceAcquisitionCompleted");
-    }
-
-    @Override
-    public void deviceImageResultAvailable(IBScanDevice ibScanDevice, final IBScanDevice.ImageData imageData, IBScanDevice.ImageType imageType, IBScanDevice.ImageData[] imageData1) {
-        Timber.d("deviceImageResultAvailable");
-        ((Activity) context.get()).runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                captureOk.set(true);
-                mIvView.setImageResource(R.drawable.check);
-                fpMessage.setText(R.string.fp_recorded);
-
-                retry.set(false);
-                dialog.getActionButton(DialogAction.POSITIVE).setEnabled(true);
-                dialog.setActionButton(DialogAction.POSITIVE, android.R.string.ok);
-                SystemClock.sleep(1000);
-                currentImage = imageData.toBitmap();
-            }
-        });
-    }
-
-    @Override
-    public void deviceImageResultExtendedAvailable(IBScanDevice ibScanDevice, IBScanException e, IBScanDevice.ImageData imageData, IBScanDevice.ImageType imageType, int i, IBScanDevice.ImageData[] imageData1, IBScanDevice.SegmentPosition[] segmentPositions) {
-        Timber.d("deviceImageResultExtendedAvailable");
-        if (e != null) {
-            Timber.e(e.getMessage());
+    private IBScanDeviceListener ibScanListener = new IBScanDeviceListener() {
+        @Override
+        public void deviceCommunicationBroken(IBScanDevice ibScanDevice) {
+            Timber.d("deviceCommunicationBroken");
         }
-        ((Activity) context.get()).runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if (!captureOk.get()) {
-                    try {
-                        if (reader.isCaptureActive())
-                            reader.cancelCaptureImage();
-                    } catch (IBScanException e) {
-                        e.printStackTrace();
-                    }
-                    mIvView.setImageResource(R.drawable.alert_circle_outline);
-                    dialog.setActionButton(DialogAction.POSITIVE, R.string.dlg_retry);
-                    dialog.getActionButton(DialogAction.POSITIVE).setEnabled(true);
-                    retry.set(true);
+
+        @Override
+        public void deviceImagePreviewAvailable(IBScanDevice ibScanDevice, final IBScanDevice.ImageData imageData) {
+            ((Activity) context.get()).runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    mIvView.setImageBitmap(imageData.toBitmap());
                 }
+            });
+        }
+
+        @Override
+        public void deviceFingerCountChanged(IBScanDevice ibScanDevice, IBScanDevice.FingerCountState fingerCountState) {
+
+        }
+
+        @Override
+        public void deviceFingerQualityChanged(IBScanDevice ibScanDevice, IBScanDevice.FingerQualityState[] fingerQualityStates) {
+
+        }
+
+        @Override
+        public void deviceAcquisitionBegun(IBScanDevice ibScanDevice, IBScanDevice.ImageType imageType) {
+
+        }
+
+        @Override
+        public void deviceAcquisitionCompleted(IBScanDevice ibScanDevice, IBScanDevice.ImageType imageType) {
+            Timber.d("deviceAcquisitionCompleted");
+        }
+
+        @Override
+        public void deviceImageResultAvailable(IBScanDevice ibScanDevice, final IBScanDevice.ImageData imageData, IBScanDevice.ImageType imageType, IBScanDevice.ImageData[] imageData1) {
+            Timber.d("deviceImageResultAvailable");
+            ((Activity) context.get()).runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    captureOk.set(true);
+                    mIvView.setImageResource(R.drawable.check);
+                    fpMessage.setText(R.string.fp_recorded);
+
+                    retry.set(false);
+                    dialog.getActionButton(DialogAction.POSITIVE).setEnabled(true);
+                    dialog.setActionButton(DialogAction.POSITIVE, android.R.string.ok);
+                    SystemClock.sleep(1000);
+                    currentImage = imageData.toBitmap();
+                }
+            });
+        }
+
+        @Override
+        public void deviceImageResultExtendedAvailable(IBScanDevice ibScanDevice, IBScanException e, IBScanDevice.ImageData imageData, IBScanDevice.ImageType imageType, int i, IBScanDevice.ImageData[] imageData1, IBScanDevice.SegmentPosition[] segmentPositions) {
+            Timber.d("deviceImageResultExtendedAvailable");
+            if (e != null) {
+                Timber.e(e.getMessage());
             }
-        });
-    }
+            ((Activity) context.get()).runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (!captureOk.get()) {
+                        try {
+                            if (reader.isCaptureActive())
+                                reader.cancelCaptureImage();
+                        } catch (IBScanException e) {
+                            e.printStackTrace();
+                        }
+                        mIvView.setImageResource(R.drawable.alert_circle_outline);
+                        dialog.setActionButton(DialogAction.POSITIVE, R.string.dlg_retry);
+                        dialog.getActionButton(DialogAction.POSITIVE).setEnabled(true);
+                        retry.set(true);
+                    }
+                }
+            });
+        }
 
-    @Override
-    public void devicePlatenStateChanged(IBScanDevice ibScanDevice, IBScanDevice.PlatenState platenState) {
+        @Override
+        public void devicePlatenStateChanged(IBScanDevice ibScanDevice, IBScanDevice.PlatenState platenState) {
 
-    }
+        }
 
-    @Override
-    public void deviceWarningReceived(IBScanDevice ibScanDevice, IBScanException e) {
+        @Override
+        public void deviceWarningReceived(IBScanDevice ibScanDevice, IBScanException e) {
 
-    }
+        }
 
-    @Override
-    public void devicePressedKeyButtons(IBScanDevice ibScanDevice, int i) {
+        @Override
+        public void devicePressedKeyButtons(IBScanDevice ibScanDevice, int i) {
 
-    }
+        }
+    };
+
 }

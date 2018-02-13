@@ -14,9 +14,9 @@ public class App extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        Timber.plant(new Timber.DebugTree());
         if (BuildConfig.DEBUG) {
             LeakCanary.install(this);
-            Timber.plant(new Timber.DebugTree());
         }
     }
 }
