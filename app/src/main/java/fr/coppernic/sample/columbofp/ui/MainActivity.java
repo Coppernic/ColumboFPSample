@@ -49,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
                 showFAB(true);
             }
             else{
-                showMessage("Error powering on reader. Make sure System Services is installed on the device");
+                showMessage(getString(R.string.error_power_on));
             }
         }
 

@@ -116,7 +116,7 @@ public class IBScanFingerPrint implements FingerPrint {
             try {
                 readerDevice.close();
             } catch (IBScanException e) {
-                Timber.e("Issue during device close(exeception: " + e + ")");
+                Timber.e("Issue during device close(exception: " + e + ")");
                 e.printStackTrace();
             }
         }

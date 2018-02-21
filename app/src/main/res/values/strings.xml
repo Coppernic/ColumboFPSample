@@ -28,6 +28,7 @@
     <string name="wait_FP_powered">Waiting Fingerprint powered up...</string>
     <string name="press_FP_button">Press Fingerprint button</string>
     <string name="FP_opened_error">Opening Fingerprint reader failed !</string>
+    <string name="error_power_on">Error powering on reader. Make sure System Services is installed on the device</string>
 
     <string-array name="acquisition_time_out">
         <item>10</item>
