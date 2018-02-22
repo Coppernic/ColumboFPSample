@@ -7,8 +7,6 @@
     <string name="fp_touch">Touch sensor</string>
     <string name="fp_title">Finger print</string>
     <string name="fp_recorded">Finger print recorded successfully</string>
-    <string name="fp_bad">Too bad record : %1$s</string>
-    <string name="fp_error">Error : %1$s</string>
     <string name="fingerprint_settings">Fingerprint Settings</string>
     <string name="pref_reader_name">pref_reader_name</string>
     <string name="reader_name">Reader Name</string>
@@ -23,9 +21,9 @@
     <string name="firmware_version">Firmware Version</string>
     <string name="pref_production_revision">pref_production_revision</string>
     <string name="production_revision">Production Revision</string>
-    <string name="opening_FP_reader">Opening FP reader...</string>
+    <string name="opening_FP_reader">Opening FP reader…</string>
     <string name="fingerprint_explanation">Press FingerPrint button </string>
-    <string name="wait_FP_powered">Waiting Fingerprint powered up...</string>
+    <string name="wait_FP_powered">Waiting Fingerprint powered up…</string>
     <string name="press_FP_button">Press Fingerprint button</string>
     <string name="FP_opened_error">Opening Fingerprint reader failed !</string>
     <string name="error_power_on">Error powering on reader. Make sure System Services is installed on the device</string>

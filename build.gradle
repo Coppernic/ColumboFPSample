@@ -22,8 +22,21 @@ allprojects {
         maven { url 'https://artifactory.coppernic.fr/plugins-release'}
         maven { url 'https://artifactory.coppernic.fr/artifactory/libs-release'}
     }
+
+    configurations.all {
+        resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+            def requested = details.requested
+            if (requested.group == 'com.android.support') {
+                if (!requested.name.startsWith("multidex")) {
+                    details.useVersion "26.1.0"
+                }
+            }
+        }
+    }
 }
 
 task clean(type: Delete) {
     delete rootProject.buildDir
 }
+
+

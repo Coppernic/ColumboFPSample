@@ -154,7 +154,7 @@ public class IBScanFingerPrint implements FingerPrint {
     }
 
     /********************IB listener *******************/
-    IBScanListener ibScanListener = new IBScanListener() {
+    private IBScanListener ibScanListener = new IBScanListener() {
         @Override
         public void scanDeviceAttached(int i) {
             Timber.d("New IB scanner device attached");
