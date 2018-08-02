@@ -5,9 +5,10 @@ buildscript {
     repositories {
         google()
         jcenter()
+        maven { url 'https://artifactory.coppernic.fr/plugins-release'}
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.0.1'
+        classpath 'com.android.tools.build:gradle:3.1.3'
         
 
         // NOTE: Do not place your application dependencies here; they belong
@@ -19,19 +20,7 @@ allprojects {
     repositories {
         google()
         jcenter()
-        maven { url 'https://artifactory.coppernic.fr/plugins-release'}
         maven { url 'https://artifactory.coppernic.fr/artifactory/libs-release'}
-    }
-
-    configurations.all {
-        resolutionStrategy.eachDependency { DependencyResolveDetails details ->
-            def requested = details.requested
-            if (requested.group == 'com.android.support') {
-                if (!requested.name.startsWith("multidex")) {
-                    details.useVersion "26.1.0"
-                }
-            }
-        }
     }
 }
 
