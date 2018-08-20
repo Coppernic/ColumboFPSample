@@ -7,9 +7,9 @@
     <application
         android:name=".App"
         android:allowBackup="true"
-        android:icon="@mipmap/fingerprint_blue"
+        android:icon="@drawable/fingerprint_blue"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:roundIcon="@drawable/fingerprint_blue"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
