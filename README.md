@@ -3,7 +3,9 @@ Sample application for Fingerprint reader on C-One e-ID
 
 ## Prerequisites
 
-CpcSystemServices shall be installed on your device.
+For C-One e-ID, CpcSystemServices shall be installed on your device.
+For C-One e-ID 2, Core Services must be installed on your device.
+
 Please install the last version available on FDroid available on www.coppernic.fr/fdroid.apk
 
 
@@ -27,6 +29,82 @@ dependencies {
 }
 
 ```
+
+### Runtime permissions 
+
+For C-One e-ID 2 only, it is mandatory to handle runtime permission for fingerprint reader.
+
+ * Add permission to AndroidManifest.xml
+ 
+```xml
+
+<uses-permission android:name="fr.coppernic.permission.FINGER_PRINT" />
+
+```
+
+ * Check if permission has been granted and ask for it if not
+ 
+``` java
+
+private static final String FINGER_PRINT_PERMISSION = "fr.coppernic.permission.FINGER_PRINT";
+private static final int REQUEST_PERMISSION_CODE = 28;
+
+...
+
+if (!checkPermission()) {
+    requestPermission();
+} else {
+    // OK
+}
+
+private boolean checkPermission() {
+    if (CpcOs.isConeN()) {
+        return ContextCompat.checkSelfPermission(this, FINGER_PRINT_PERMISSION) == PackageManager.PERMISSION_GRANTED;
+    } else {
+        return true;
+    }
+}
+
+private void requestPermission() {
+    if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+            FINGER_PRINT_PERMISSION)) {
+        // For this sample we do not display rationale, we just ask for permission if not granted
+        ActivityCompat.requestPermissions(this,
+                new String[]{FINGER_PRINT_PERMISSION},
+                REQUEST_PERMISSION_CODE);
+    } else {
+        // No explanation needed; request the permission
+        ActivityCompat.requestPermissions(this,
+                new String[]{FINGER_PRINT_PERMISSION},
+                REQUEST_PERMISSION_CODE);
+    }
+}
+
+```
+
+ * Finally check request result
+ 
+```java
+
+@Override
+public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    switch (requestCode) {
+        case REQUEST_PERMISSION_CODE: {
+            // If request is cancelled, the result arrays are empty.
+            if (grantResults.length > 0
+                    && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // PErmission granted
+            } else {
+                // Permission rejected
+                
+            }
+        }
+    }
+}
+
+```
+
+More information on [Android Developers](https://developer.android.com/training/permissions/requesting)
 
 ### Power management
 
