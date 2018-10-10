@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="fr.coppernic.sample.columbofp">
 
-    <uses-permission android:name="android.permission.USB_PERMISSION" />
+    <uses-permission android:name="fr.coppernic.permission.FINGER_PRINT" />
 
     <application
         android:name=".App"
@@ -19,6 +19,7 @@
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+                <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>

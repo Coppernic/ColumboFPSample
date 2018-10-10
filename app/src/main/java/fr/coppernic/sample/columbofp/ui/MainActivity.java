@@ -1,9 +1,13 @@
 package fr.coppernic.sample.columbofp.ui;
 
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -24,9 +28,13 @@ import fr.coppernic.sdk.power.api.PowerListener;
 import fr.coppernic.sdk.power.api.peripheral.Peripheral;
 import fr.coppernic.sdk.power.impl.cone.ConePeripheral;
 import fr.coppernic.sdk.utils.core.CpcResult;
+import fr.coppernic.sdk.utils.helpers.CpcOs;
 import timber.log.Timber;
 
 public class MainActivity extends AppCompatActivity {
+
+    private static final String FINGER_PRINT_PERMISSION = "fr.coppernic.permission.FINGER_PRINT";
+    private static final int REQUEST_PERMISSION_CODE = 28;
 
     @BindView(R.id.fab)
     FloatingActionButton fab;
@@ -104,7 +112,28 @@ public class MainActivity extends AppCompatActivity {
         super.onStart();
         showFAB(false);
         PowerManager.get().registerListener(powerListener);
-        powerOn(true);
+
+        if (!checkPermission()) {
+            requestPermission();
+        } else {
+            powerOn(true);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case REQUEST_PERMISSION_CODE: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    powerOn(true);
+                } else {
+                    // For this sample, we ask permission again
+                    requestPermission();
+                }
+            }
+        }
     }
 
     @Override
@@ -196,5 +225,26 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
+    private boolean checkPermission() {
+        if (CpcOs.isConeN()) {
+            return ContextCompat.checkSelfPermission(this, FINGER_PRINT_PERMISSION) == PackageManager.PERMISSION_GRANTED;
+        } else {
+            return true;
+        }
+    }
 
+    private void requestPermission() {
+        if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                FINGER_PRINT_PERMISSION)) {
+            // For this sample we do not display rationale, we just ask for permission if not granted
+            ActivityCompat.requestPermissions(this,
+                    new String[]{FINGER_PRINT_PERMISSION},
+                    REQUEST_PERMISSION_CODE);
+        } else {
+            // No explanation needed; request the permission
+            ActivityCompat.requestPermissions(this,
+                    new String[]{FINGER_PRINT_PERMISSION},
+                    REQUEST_PERMISSION_CODE);
+        }
+    }
 }
