@@ -1,4 +1,4 @@
-package fr.coppernic.sample.columbofp.settings;
+package fr.coppernic.samples.fp.columbo.settings;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;

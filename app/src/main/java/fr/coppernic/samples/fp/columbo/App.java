@@ -1,9 +1,10 @@
-package fr.coppernic.sample.columbofp;
+package fr.coppernic.samples.fp.columbo;
 
 import android.app.Application;
 
 import com.squareup.leakcanary.LeakCanary;
 
+import fr.coppernic.sample.columbofp.BuildConfig;
 import timber.log.Timber;
 
 /**

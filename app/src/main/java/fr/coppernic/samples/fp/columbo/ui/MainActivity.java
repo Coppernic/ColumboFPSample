@@ -1,4 +1,4 @@
-package fr.coppernic.sample.columbofp.ui;
+package fr.coppernic.samples.fp.columbo.ui;
 
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -20,9 +20,9 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import dmax.dialog.SpotsDialog;
 import fr.coppernic.sample.columbofp.R;
-import fr.coppernic.sample.columbofp.fingerprint.FingerPrint;
-import fr.coppernic.sample.columbofp.fingerprint.IBScanFingerPrint;
-import fr.coppernic.sample.columbofp.settings.PreferencesActivity;
+import fr.coppernic.samples.fp.columbo.fingerprint.FingerPrint;
+import fr.coppernic.samples.fp.columbo.fingerprint.IBScanFingerPrint;
+import fr.coppernic.samples.fp.columbo.settings.PreferencesActivity;
 import fr.coppernic.sdk.power.PowerManager;
 import fr.coppernic.sdk.power.api.PowerListener;
 import fr.coppernic.sdk.power.api.peripheral.Peripheral;

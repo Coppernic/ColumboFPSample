@@ -18,7 +18,7 @@ apply plugin: 'fr.coppernic.android'
 android {
     compileSdkVersion 27
     defaultConfig {
-        applicationId "fr.coppernic.sample.columbofp"
+        applicationId "fr.coppernic.samples.fp.columbo"
         minSdkVersion 15
         targetSdkVersion 27
         versionCode 1

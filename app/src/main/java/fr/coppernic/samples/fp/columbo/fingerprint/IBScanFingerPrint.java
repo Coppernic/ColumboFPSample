@@ -1,4 +1,4 @@
-package fr.coppernic.sample.columbofp.fingerprint;
+package fr.coppernic.samples.fp.columbo.fingerprint;
 
 import android.content.Context;
 import android.os.Handler;
@@ -11,7 +11,7 @@ import com.integratedbiometrics.ibscanultimate.IBScanListener;
 
 import java.lang.ref.WeakReference;
 
-import fr.coppernic.sample.columbofp.settings.Settings;
+import fr.coppernic.samples.fp.columbo.settings.Settings;
 import fr.coppernic.sdk.utils.core.CpcResult;
 import timber.log.Timber;
 

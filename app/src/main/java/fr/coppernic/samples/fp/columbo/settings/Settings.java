@@ -1,4 +1,4 @@
-package fr.coppernic.sample.columbofp.settings;
+package fr.coppernic.samples.fp.columbo.settings;
 
 import android.content.Context;
 import android.content.SharedPreferences;

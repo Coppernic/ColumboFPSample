@@ -1,4 +1,4 @@
-package fr.coppernic.sample.columbofp.fingerprint;
+package fr.coppernic.samples.fp.columbo.fingerprint;
 
 import android.graphics.Bitmap;
 
