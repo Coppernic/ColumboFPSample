@@ -7,6 +7,10 @@ apply plugin: 'fr.coppernic.extensions'
 
 copper {
     projectName = "ColumboFpSample"
+
+    publications {
+        artiConfig = project.hasProperty('artiServer') ? project.artiServer : "arti01"
+    }
 }
 
 apply plugin: 'fr.coppernic.android'
