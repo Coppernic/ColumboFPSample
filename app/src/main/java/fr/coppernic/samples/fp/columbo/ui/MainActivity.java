@@ -28,13 +28,13 @@ import fr.coppernic.sdk.power.api.PowerListener;
 import fr.coppernic.sdk.power.api.peripheral.Peripheral;
 import fr.coppernic.sdk.power.impl.cone.ConePeripheral;
 import fr.coppernic.sdk.utils.core.CpcResult;
-import fr.coppernic.sdk.utils.helpers.CpcOs;
+import fr.coppernic.sdk.utils.helpers.OsHelper;
 import timber.log.Timber;
 
 public class MainActivity extends AppCompatActivity {
 
     private static final String FINGER_PRINT_PERMISSION = "fr.coppernic.permission.FINGER_PRINT";
-    private static final int REQUEST_PERMISSION_CODE = 28;
+    private static final int REQUEST_PERMISSION_CODE = 29;
 
     @BindView(R.id.fab)
     FloatingActionButton fab;
@@ -55,8 +55,7 @@ public class MainActivity extends AppCompatActivity {
                 Timber.d("Fp reader powered on");
                 fingerprintReader.setUp();
                 showFAB(true);
-            }
-            else{
+            } else {
                 showMessage(getString(R.string.error_power_on));
             }
         }
@@ -147,7 +146,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @OnClick(R.id.fab)
-    void captureFP(){
+    void captureFP() {
         startProgress();
         fingerprintReader.capture();
     }
@@ -226,7 +225,7 @@ public class MainActivity extends AppCompatActivity {
     };
 
     private boolean checkPermission() {
-        if (CpcOs.isConeN()) {
+        if (OsHelper.isConeV2()) {
             return ContextCompat.checkSelfPermission(this, FINGER_PRINT_PERMISSION) == PackageManager.PERMISSION_GRANTED;
         } else {
             return true;
@@ -234,6 +233,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void requestPermission() {
+
         if (ActivityCompat.shouldShowRequestPermissionRationale(this,
                 FINGER_PRINT_PERMISSION)) {
             // For this sample we do not display rationale, we just ask for permission if not granted
