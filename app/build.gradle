@@ -69,6 +69,9 @@ dependencies {
     implementation(group: 'fr.coppernic.sdk.cpcutils', name: 'CpcUtilsLib', version: '6.13.0', ext: 'aar')
     implementation 'fr.coppernic.sdk.core:CpcCore:1.8.14'
 
+    // Ui
+    implementation 'fr.coppernic.lib:splash:0.1.0'
+
     // Butter knife
     implementation 'com.jakewharton:butterknife:8.8.1'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'

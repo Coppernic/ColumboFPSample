@@ -27,6 +27,24 @@
     <string name="press_FP_button">Press Fingerprint button</string>
     <string name="FP_opened_error">Opening Fingerprint reader failed !</string>
     <string name="error_power_on">Error powering on reader. Make sure System Services is installed on the device</string>
+    <string name="thumb_rb">Thumb</string>
+    <string name="forefinger_rb">Forefinger</string>
+    <string name="middle_finger_rb">Middle Finger</string>
+    <string name="ring_finger_rb">Ring Finger</string>
+    <string name="little_finger_rb">Little Finger</string>
+    <string name="unknown_finger_rb">Unknow</string>
+    <string name="left_hand_rb">Left</string>
+    <string name="right_hand_rb">Right</string>
+    <string name="choose_finger_textView">Choose Finger</string>
+    <string name="file_name_textView">File Name</string>
+    <string name="save_button">save</string>
+    <string name="choose_file_name_editText">Choose File Name</string>
+    <string name="choose_hand_textView">Choose Hand</string>
+    <string name="extension_textView">.bmp</string>
+    <string name="error_message_save">You must select a Hand and a Finger</string>
+    <string name="error_title_save">Finger Selection Error</string>
+    <string name="unknow_finger_rb">Unknown</string>
+    <string name="unknown_hand_rb">Unknown</string>
 
     <string-array name="acquisition_time_out">
         <item>10</item>
