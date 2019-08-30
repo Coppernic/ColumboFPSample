@@ -1,22 +1,30 @@
 package fr.coppernic.samples.fp.columbo.ui;
 
-import android.content.Context;
+import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.net.Uri;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
+
+import com.integratedbiometrics.ibscanultimate.IBScanDevice;
+import com.integratedbiometrics.ibscanultimate.IBScanDeviceListener;
+import com.integratedbiometrics.ibscanultimate.IBScanException;
+
+import java.io.ByteArrayOutputStream;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -47,9 +55,13 @@ public class MainActivity extends AppCompatActivity {
     Toolbar toolbar;
     @BindView(R.id.imageFingerPrint)
     ImageView fingerPrintImage;
+    @BindView(R.id.fabSave)
+    FloatingActionButton fabSave;
 
     private FingerPrint fingerprintReader;
+    private IBScanDevice reader;
     private SpotsDialog spotsDialog;
+    private Bitmap currentImage;
 
     private final PowerListener powerListener = new PowerListener() {
         @Override
@@ -75,11 +87,15 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
+        fabSave.setVisibility(View.INVISIBLE);
         setSupportActionBar(toolbar);
         showFAB(false);
         Intent intent = getIntent();
-        Toast.makeText(this, intent.getStringExtra("Success") + "", Toast.LENGTH_LONG).show();
-
+        if (getIntent().getExtras() != null) {
+            Snackbar snackbar = Snackbar
+                    .make(getWindow().getDecorView().getRootView(), intent.getStringExtra("Success") + "", Snackbar.LENGTH_LONG);
+            snackbar.show();
+        }
         fingerprintReader = new IBScanFingerPrint(this, fpListener);
     }
 
@@ -126,16 +142,13 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        switch (requestCode) {
-            case REQUEST_PERMISSION_CODE: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    powerOn(true);
-                } else {
-                    // For this sample, we ask permission again
-                    requestPermission();
-                }
+        if (requestCode == REQUEST_PERMISSION_CODE) {// If request is cancelled, the result arrays are empty.
+            if (grantResults.length > 0
+                    && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                powerOn(true);
+            } else {
+                // For this sample, we ask permission again
+                requestPermission();
             }
         }
     }
@@ -156,12 +169,15 @@ public class MainActivity extends AppCompatActivity {
         fingerprintReader.capture();
     }
 
-    private static void scanFile(Context context, Uri imageUri) {
-        Intent scanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-        scanIntent.setData(imageUri);
-        context.sendBroadcast(scanIntent);
+    @OnClick(R.id.fabSave)
+    void saveFp() {
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        currentImage.compress(Bitmap.CompressFormat.PNG, 100, stream);
+        byte[] byteArray = stream.toByteArray();
+        Intent intent = new Intent(this, SaveFpActivity.class);
+        intent.putExtra("Fp", byteArray);
+        this.startActivity(intent);
     }
-
 
     private void powerOn(boolean on) {
         if (on) {
@@ -184,12 +200,10 @@ public class MainActivity extends AppCompatActivity {
         spotsDialog.setMessage(getString(R.string.opening_FP_reader));
     }
 
-
     public void stopProgress() {
         fab.setEnabled(true);
         dismissSpots();
     }
-
 
     public void showFAB(boolean value) {
         if (value) {
@@ -200,7 +214,6 @@ public class MainActivity extends AppCompatActivity {
             fab.hide();
         }
     }
-
 
     public void showMessage(String value) {
         tvMessage.setText(value);
@@ -231,12 +244,16 @@ public class MainActivity extends AppCompatActivity {
         public void onAcquisitionCompleted(Bitmap fingerPrint) {
             showFpImage(fingerPrint);
             fingerprintReader.stopCapture();
+            fabSave.setVisibility(View.VISIBLE);
+            currentImage = ((BitmapDrawable) fingerPrintImage.getDrawable()).getBitmap();
         }
     };
 
+
     private boolean checkPermission() {
         if (OsHelper.isConeV2()) {
-            return ContextCompat.checkSelfPermission(this, FINGER_PRINT_PERMISSION) == PackageManager.PERMISSION_GRANTED;
+            return ContextCompat.checkSelfPermission(this, FINGER_PRINT_PERMISSION) == PackageManager.PERMISSION_GRANTED
+                    && ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
         } else {
             return true;
         }
@@ -257,5 +274,4 @@ public class MainActivity extends AppCompatActivity {
                     REQUEST_PERMISSION_CODE);
         }
     }
-
 }

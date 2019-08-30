@@ -36,6 +36,7 @@ public class FpDialogManager {
     private final Handler handler = new Handler();
     private final IBScanDevice reader;
     private FingerPrint.Listener listener;
+    private IBScanDevice.ImageData imageData;
 
     private Bitmap currentImage;
 
@@ -67,8 +68,9 @@ public class FpDialogManager {
             }
         }
     };
+
     @SuppressWarnings("FieldCanBeLocal")
-    private final MaterialDialog.SingleButtonCallback neutral = new MaterialDialog.SingleButtonCallback() {
+    /*private final MaterialDialog.SingleButtonCallback neutral = new MaterialDialog.SingleButtonCallback() {
         @Override
         public void onClick(@NonNull MaterialDialog materialDialog, @NonNull final DialogAction dialogAction) {
             Timber.v("OnNeutral");
@@ -80,7 +82,7 @@ public class FpDialogManager {
             intent.putExtra("Fp", byteArray);
             context.startActivity(intent);
         }
-    };
+    };*/
 
     FpDialogManager(Context context, IBScanDevice r) {
         this.context = new WeakReference<>(context);
@@ -91,10 +93,10 @@ public class FpDialogManager {
                 .cancelable(true)
                 .negativeText(android.R.string.cancel)
                 .positiveText(android.R.string.ok)
-                .neutralText("Save")
+                //.neutralText("Save")
                 .onNegative(negative)
                 .onPositive(positive)
-                .onNeutral(neutral)
+                //.onNeutral(neutral)
                 .build();
 
         if (dialog.getWindow() != null) {
@@ -192,7 +194,7 @@ public class FpDialogManager {
                     fpMessage.setText(R.string.fp_recorded);
 
                     retry.set(false);
-                    dialog.getActionButton(DialogAction.NEUTRAL).setEnabled(true);
+                    //dialog.getActionButton(DialogAction.NEUTRAL).setEnabled(true);
                     dialog.getActionButton(DialogAction.POSITIVE).setEnabled(true);
                     dialog.setActionButton(DialogAction.POSITIVE, android.R.string.ok);
                     SystemClock.sleep(1000);

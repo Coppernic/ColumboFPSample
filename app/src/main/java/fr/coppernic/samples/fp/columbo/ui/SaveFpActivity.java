@@ -7,7 +7,6 @@ import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.NonNull;
-
 import android.support.v7.app.AppCompatActivity;
 import android.widget.Button;
 import android.widget.EditText;
@@ -19,7 +18,6 @@ import android.widget.Toast;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
-import com.integratedbiometrics.ibscanultimate.IBScanDevice;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -38,14 +36,11 @@ public class SaveFpActivity extends AppCompatActivity {
     private Bitmap currentBitmap;
     private String selectedFinger;
     private String selectedHand;
-    private IBScanDevice.ImageData imageData;
 
     @BindView(R.id.save_fp_button)
     Button savefpbutton;
     @BindView(R.id.cancel_button)
     Button cancelfpbutton;
-    @BindView(R.id.file_edit_text)
-    EditText filenameText;
     @BindView(R.id.right_thumb_rb)
     RadioButton rightThumb;
     @BindView(R.id.right_forefinger_rb)
@@ -76,12 +71,8 @@ public class SaveFpActivity extends AppCompatActivity {
     RadioButton unknownHandButton;
     @BindView(R.id.unknow_finger_rb)
     RadioButton unknownFingerButton;
-
-    String fileName = filenameText.getText().toString();
-    String extension = extensionTextView.getText().toString();
-    String handName = handTextView.getText().toString();
-    String fingerName = fingerTextView.getText().toString();
-    String userFilename = handName + fingerName + fileName + extension;
+    @BindView(R.id.file_edit_text)
+    EditText filenameText;
 
 
     private final MaterialDialog.SingleButtonCallback positive = new MaterialDialog.SingleButtonCallback() {
@@ -184,11 +175,17 @@ public class SaveFpActivity extends AppCompatActivity {
 
     private void saveToInternalStorage(Bitmap bitmapImage) {
 
+        String fileName = filenameText.getText().toString();
+        String extension = extensionTextView.getText().toString();
+        String handName = handTextView.getText().toString();
+        String fingerName = fingerTextView.getText().toString();
+        String userFilename = handName + fingerName + fileName + extension;
+
         File storageLoc = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
         File fpSave = new File(storageLoc, userFilename);
-        String pathInternal = "FingerPrint successfully save to :" + storageLoc + userFilename;
-        String storagePath = "External Device unavailable / Save to:" + storageLoc;
-        FileOutputStream outputStream = null;
+        String pathInternal = getString(R.string.success_save_internal) + storageLoc + userFilename;
+        String storagePath = getString(R.string.external_device_unavailable) + storageLoc;
+        FileOutputStream outputStream;
         Toast.makeText(this, storagePath, Toast.LENGTH_LONG).show();
 
         if (!fpSave.exists()) {
@@ -198,7 +195,6 @@ public class SaveFpActivity extends AppCompatActivity {
             outputStream = new FileOutputStream(fpSave);
             bitmapImage.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
             outputStream.flush();
-            outputStream.close();
             Intent passIntent = new Intent(SaveFpActivity.this, MainActivity.class);
             passIntent.putExtra("path", pathInternal);
             startActivity(passIntent);
@@ -212,12 +208,19 @@ public class SaveFpActivity extends AppCompatActivity {
 
     public void saveToExternalStorage(Bitmap bitmapImage) {
 
+        String fileName = filenameText.getText().toString();
+        String extension = extensionTextView.getText().toString();
+        String handName = handTextView.getText().toString();
+        String fingerName = fingerTextView.getText().toString();
+        String userFilename = handName + fingerName + fileName + extension;
+
+
         File storageExternalLoc = Environment.getExternalStorageDirectory();
         File fpSave = new File(storageExternalLoc, userFilename);
         FileOutputStream outputStream = null;
         String pathExternal = storageExternalLoc + userFilename;
 
-        String storageExternalPath = "External Device available / Save to:" + storageExternalLoc;
+        String storageExternalPath = getString(R.string.external_device_available) + storageExternalLoc;
         Toast.makeText(this, storageExternalPath, Toast.LENGTH_LONG).show();
 
         if (!fpSave.exists()) {
@@ -238,6 +241,14 @@ public class SaveFpActivity extends AppCompatActivity {
         } catch (IOException e) {
             Timber.d("IO Exception");
             e.printStackTrace();
+        } finally {
+            if (outputStream != null) {
+                try {
+                    outputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 
@@ -245,46 +256,4 @@ public class SaveFpActivity extends AppCompatActivity {
         String extStorageState = Environment.getExternalStorageState();
         return !Environment.MEDIA_MOUNTED.equals(extStorageState);
     }
-
-
-    /**Use this method to determine if External Storage is Readable Only.
-     *
-     *
-     * private static boolean isExternalStorageReadOnly() {
-     * String extStorageState = Environment.getExternalStorageState();
-     * return Environment.MEDIA_MOUNTED_READ_ONLY.equals(extStorageState);
-     * }
-     */
-
-    /**Use this method to create a new folder in internal storage directory pictures
-     *
-     *
-     public void createInternalFolder() {
-     final File f = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "FpCapture");
-     if (!f.exists()) {
-     Timber.d("Folder doesn't exist, creating it...");
-     boolean rv = f.mkdir();
-     Timber.d("Folder creation %s", (rv ? "success" : "failed"));
-     } else {
-     Timber.d("Folder already exists.");
-     }
-     }
-     **/
-
-    /**Use this method to create a new folder in external storage if is available;
-     *
-     *
-     * public void createExternalFolder() {
-     * final File f= new File(Environment.getExternalStorageDirectory(),"FpCapture");
-     * if (!f.exists()){
-     * Timber.d("Folder doesn't exist, creating it...");
-     * boolean rv = f.mkdir();
-     * Timber.d("Folder creation %s", (rv ? "success" : "failed"));
-     * } else {
-     * Timber.d("Folder already exists");
-     * }
-     * }
-     **/
-
-
 }
