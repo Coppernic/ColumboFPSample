@@ -36,6 +36,7 @@ public class FpDialogManager {
     private final Handler handler = new Handler();
     private final IBScanDevice reader;
     private FingerPrint.Listener listener;
+    private IBScanDevice.ImageData imageData;
 
     private Bitmap currentImage;
 
@@ -67,6 +68,7 @@ public class FpDialogManager {
             }
         }
     };
+
     @SuppressWarnings("FieldCanBeLocal")
     private final MaterialDialog.SingleButtonCallback neutral = new MaterialDialog.SingleButtonCallback() {
         @Override

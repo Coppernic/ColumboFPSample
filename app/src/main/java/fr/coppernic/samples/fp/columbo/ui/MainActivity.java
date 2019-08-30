@@ -80,6 +80,7 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = getIntent();
         Toast.makeText(this, intent.getStringExtra("Success") + "", Toast.LENGTH_LONG).show();
 
+
         fingerprintReader = new IBScanFingerPrint(this, fpListener);
     }
 
@@ -155,13 +156,6 @@ public class MainActivity extends AppCompatActivity {
         startProgress();
         fingerprintReader.capture();
     }
-
-    private static void scanFile(Context context, Uri imageUri) {
-        Intent scanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-        scanIntent.setData(imageUri);
-        context.sendBroadcast(scanIntent);
-    }
-
 
     private void powerOn(boolean on) {
         if (on) {

@@ -40,11 +40,14 @@
     <string name="save_button">save</string>
     <string name="choose_file_name_editText">Choose File Name</string>
     <string name="choose_hand_textView">Choose Hand</string>
-    <string name="extension_textView">.bmp</string>
+    <string name="extension_textView">.png</string>
     <string name="error_message_save">You must select a Hand and a Finger</string>
     <string name="error_title_save">Finger Selection Error</string>
     <string name="unknow_finger_rb">Unknown</string>
     <string name="unknown_hand_rb">Unknown</string>
+    <string name="success_save_internal">FingerPrint successfully save to :</string>
+    <string name="external_device_unavailable">External Device unavailable / Save to:</string>
+    <string name="external_device_available">External Device available / Save to:</string>
 
     <string-array name="acquisition_time_out">
         <item>10</item>
