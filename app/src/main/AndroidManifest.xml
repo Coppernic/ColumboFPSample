@@ -3,6 +3,9 @@
     package="fr.coppernic.sample.columbofp">
 
     <uses-permission android:name="fr.coppernic.permission.FINGER_PRINT" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
         android:name="fr.coppernic.samples.fp.columbo.App"
@@ -28,6 +31,7 @@
             android:label="@string/title_activity_preferences"
             android:theme="@style/AppTheme.NoActionBar"
             android:screenOrientation="portrait"/>
+        <activity android:name="fr.coppernic.samples.fp.columbo.ui.SaveFpActivity" />
     </application>
 
 </manifest>

@@ -1,8 +1,10 @@
 package fr.coppernic.samples.fp.columbo.ui;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
@@ -14,6 +16,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -74,6 +77,9 @@ public class MainActivity extends AppCompatActivity {
 
         setSupportActionBar(toolbar);
         showFAB(false);
+        Intent intent = getIntent();
+        Toast.makeText(this, intent.getStringExtra("Success") + "", Toast.LENGTH_LONG).show();
+
 
         fingerprintReader = new IBScanFingerPrint(this, fpListener);
     }
@@ -151,7 +157,6 @@ public class MainActivity extends AppCompatActivity {
         fingerprintReader.capture();
     }
 
-
     private void powerOn(boolean on) {
         if (on) {
             ConePeripheral.FP_IB_COLOMBO_USB.on(this);
@@ -164,7 +169,6 @@ public class MainActivity extends AppCompatActivity {
     public void showFpImage(Bitmap fingerPrint) {
         fingerPrintImage.setImageBitmap(fingerPrint);
     }
-
 
     public void startProgress() {
         dismissSpots();
@@ -247,4 +251,5 @@ public class MainActivity extends AppCompatActivity {
                     REQUEST_PERMISSION_CODE);
         }
     }
+
 }
