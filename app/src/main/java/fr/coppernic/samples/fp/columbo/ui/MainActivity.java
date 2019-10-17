@@ -8,7 +8,6 @@ import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -18,13 +17,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
-
-import com.integratedbiometrics.ibscanultimate.IBScanDevice;
-import com.integratedbiometrics.ibscanultimate.IBScanDeviceListener;
-import com.integratedbiometrics.ibscanultimate.IBScanException;
-
-import java.io.ByteArrayOutputStream;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -59,9 +51,8 @@ public class MainActivity extends AppCompatActivity {
     FloatingActionButton fabSave;
 
     private FingerPrint fingerprintReader;
-    private IBScanDevice reader;
     private SpotsDialog spotsDialog;
-    private Bitmap currentImage;
+    public static Bitmap currentImage;
 
     private final PowerListener powerListener = new PowerListener() {
         @Override
@@ -90,12 +81,6 @@ public class MainActivity extends AppCompatActivity {
         fabSave.setVisibility(View.INVISIBLE);
         setSupportActionBar(toolbar);
         showFAB(false);
-        Intent intent = getIntent();
-        if (getIntent().getExtras() != null) {
-            Snackbar snackbar = Snackbar
-                    .make(getWindow().getDecorView().getRootView(), intent.getStringExtra("Success") + "", Snackbar.LENGTH_LONG);
-            snackbar.show();
-        }
         fingerprintReader = new IBScanFingerPrint(this, fpListener);
     }
 
@@ -171,11 +156,7 @@ public class MainActivity extends AppCompatActivity {
 
     @OnClick(R.id.fabSave)
     void saveFp() {
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        currentImage.compress(Bitmap.CompressFormat.PNG, 100, stream);
-        byte[] byteArray = stream.toByteArray();
         Intent intent = new Intent(this, SaveFpActivity.class);
-        intent.putExtra("Fp", byteArray);
         this.startActivity(intent);
     }
 
@@ -186,7 +167,6 @@ public class MainActivity extends AppCompatActivity {
             ConePeripheral.FP_IB_COLOMBO_USB.off(this);
         }
     }
-
 
     public void showFpImage(Bitmap fingerPrint) {
         fingerPrintImage.setImageBitmap(fingerPrint);
@@ -235,6 +215,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onReaderReady(CpcResult.RESULT res) {
             stopProgress();
+
             if (res != CpcResult.RESULT.OK) {//init reader failed
                 showMessage(getString(R.string.FP_opened_error));
             }
@@ -248,7 +229,6 @@ public class MainActivity extends AppCompatActivity {
             currentImage = ((BitmapDrawable) fingerPrintImage.getDrawable()).getBitmap();
         }
     };
-
 
     private boolean checkPermission() {
         if (OsHelper.isConeV2()) {

@@ -32,7 +32,6 @@
     <string name="middle_finger_rb">Middle Finger</string>
     <string name="ring_finger_rb">Ring Finger</string>
     <string name="little_finger_rb">Little Finger</string>
-    <string name="unknown_finger_rb">Unknow</string>
     <string name="left_hand_rb">Left</string>
     <string name="right_hand_rb">Right</string>
     <string name="choose_finger_textView">Choose Finger</string>
@@ -43,7 +42,7 @@
     <string name="extension_textView">.png</string>
     <string name="error_message_save">You must select a Hand and a Finger</string>
     <string name="error_title_save">Finger Selection Error</string>
-    <string name="unknow_finger_rb">Unknown</string>
+    <string name="unknown_finger_rb">Unknown</string>
     <string name="unknown_hand_rb">Unknown</string>
     <string name="success_save_internal">FingerPrint successfully save to :</string>
     <string name="external_device_unavailable">External Device unavailable / Save to:</string>

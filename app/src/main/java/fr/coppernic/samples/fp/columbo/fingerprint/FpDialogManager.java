@@ -1,9 +1,7 @@
 package fr.coppernic.samples.fp.columbo.fingerprint;
 
 import android.app.Activity;
-import android.app.Dialog;
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Handler;
 import android.os.SystemClock;
@@ -18,16 +16,14 @@ import com.integratedbiometrics.ibscanultimate.IBScanDevice;
 import com.integratedbiometrics.ibscanultimate.IBScanDeviceListener;
 import com.integratedbiometrics.ibscanultimate.IBScanException;
 
-import java.io.ByteArrayOutputStream;
 import java.lang.ref.WeakReference;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import fr.coppernic.sample.columbofp.R;
-import fr.coppernic.samples.fp.columbo.ui.SaveFpActivity;
 import fr.coppernic.sdk.utils.util.Preconditions;
 import timber.log.Timber;
 
-public class FpDialogManager {
+class FpDialogManager {
 
     private final WeakReference<Context> context;
     private final MaterialDialog dialog;
@@ -36,7 +32,6 @@ public class FpDialogManager {
     private final Handler handler = new Handler();
     private final IBScanDevice reader;
     private FingerPrint.Listener listener;
-    private IBScanDevice.ImageData imageData;
 
     private Bitmap currentImage;
 
@@ -45,7 +40,6 @@ public class FpDialogManager {
         @Override
         public void onClick(@NonNull MaterialDialog materialDialog, @NonNull DialogAction dialogAction) {
             Timber.v("OnNegative");
-            // Schedulers.io().scheduleDirect(disposeAndClose);
         }
     };
     private TextView fpMessage;
@@ -69,21 +63,6 @@ public class FpDialogManager {
         }
     };
 
-    @SuppressWarnings("FieldCanBeLocal")
-    /*private final MaterialDialog.SingleButtonCallback neutral = new MaterialDialog.SingleButtonCallback() {
-        @Override
-        public void onClick(@NonNull MaterialDialog materialDialog, @NonNull final DialogAction dialogAction) {
-            Timber.v("OnNeutral");
-            Context context = dialog.getContext();
-            ByteArrayOutputStream stream = new ByteArrayOutputStream();
-            currentImage.compress(Bitmap.CompressFormat.PNG, 100, stream);
-            byte[] byteArray = stream.toByteArray();
-            Intent intent = new Intent(context, SaveFpActivity.class);
-            intent.putExtra("Fp", byteArray);
-            context.startActivity(intent);
-        }
-    };*/
-
     FpDialogManager(Context context, IBScanDevice r) {
         this.context = new WeakReference<>(context);
         reader = r;
@@ -93,10 +72,8 @@ public class FpDialogManager {
                 .cancelable(true)
                 .negativeText(android.R.string.cancel)
                 .positiveText(android.R.string.ok)
-                //.neutralText("Save")
                 .onNegative(negative)
                 .onPositive(positive)
-                //.onNeutral(neutral)
                 .build();
 
         if (dialog.getWindow() != null) {
@@ -118,7 +95,7 @@ public class FpDialogManager {
         }
     }
 
-    void dismiss() {
+    /*void dismiss() {
         Timber.d("dismiss");
         if (dialog != null) {
             dialog.dismiss();
@@ -127,9 +104,9 @@ public class FpDialogManager {
         listener = null;
     }
 
-    public Dialog getDialog() {
+    /*public Dialog getDialog() {
         return dialog;
-    }
+    }*/
 
     private void startCapture() {
         try {
@@ -194,7 +171,6 @@ public class FpDialogManager {
                     fpMessage.setText(R.string.fp_recorded);
 
                     retry.set(false);
-                    //dialog.getActionButton(DialogAction.NEUTRAL).setEnabled(true);
                     dialog.getActionButton(DialogAction.POSITIVE).setEnabled(true);
                     dialog.setActionButton(DialogAction.POSITIVE, android.R.string.ok);
                     SystemClock.sleep(1000);
@@ -207,7 +183,7 @@ public class FpDialogManager {
         public void deviceImageResultExtendedAvailable(IBScanDevice ibScanDevice, IBScanException e, IBScanDevice.ImageData imageData, IBScanDevice.ImageType imageType, int i, IBScanDevice.ImageData[] imageData1, IBScanDevice.SegmentPosition[] segmentPositions) {
             Timber.d("deviceImageResultExtendedAvailable");
             if (e != null) {
-                Timber.e(e.getMessage());
+                e.getMessage();
             }
             ((Activity) context.get()).runOnUiThread(new Runnable() {
                 @Override

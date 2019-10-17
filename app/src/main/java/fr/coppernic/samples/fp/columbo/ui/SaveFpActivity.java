@@ -2,7 +2,6 @@ package fr.coppernic.samples.fp.columbo.ui;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.os.Environment;
@@ -32,10 +31,9 @@ import timber.log.Timber;
 
 public class SaveFpActivity extends AppCompatActivity {
 
-    private MaterialDialog dialog;
-    private Bitmap currentBitmap;
     private String selectedFinger;
     private String selectedHand;
+    Bitmap currentImage;
 
     @BindView(R.id.save_fp_button)
     Button savefpbutton;
@@ -61,10 +59,6 @@ public class SaveFpActivity extends AppCompatActivity {
     RadioButton rightHand;
     @BindView(R.id.save_fp_preview)
     ImageView saveFpPreview;
-    @BindView(R.id.handtextview)
-    TextView handTextView;
-    @BindView(R.id.fingertextview)
-    TextView fingerTextView;
     @BindView(R.id.extentionTextView)
     TextView extensionTextView;
     @BindView(R.id.unknown_hand_rb)
@@ -72,7 +66,7 @@ public class SaveFpActivity extends AppCompatActivity {
     @BindView(R.id.unknow_finger_rb)
     RadioButton unknownFingerButton;
     @BindView(R.id.file_edit_text)
-    EditText filenameText;
+    EditText filenameEditText;
 
 
     private final MaterialDialog.SingleButtonCallback positive = new MaterialDialog.SingleButtonCallback() {
@@ -88,31 +82,31 @@ public class SaveFpActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.savefp_activity);
         ButterKnife.bind(this);
-        byte[] byteArray = getIntent().getByteArrayExtra("Fp");
-        currentBitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
-        showFpImage(currentBitmap);
+
+        currentImage = MainActivity.currentImage;
+        saveFpPreview.setImageBitmap(currentImage);
 
         rightRadioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
                 if (checkedId == R.id.right_thumb_rb) {
                     selectedFinger = rightThumb.getText().toString();
-                    fingerTextView.setText(selectedFinger);
+                    filenameEditText.append(String.format("%s ", selectedFinger));
                 } else if (checkedId == R.id.right_forefinger_rb) {
                     selectedFinger = rightForefinger.getText().toString();
-                    fingerTextView.setText(selectedFinger);
+                    filenameEditText.append(String.format("%s ", selectedFinger));
                 } else if (checkedId == R.id.right_middlefinger_rb) {
                     selectedFinger = rightMiddleFinger.getText().toString();
-                    fingerTextView.setText(selectedFinger);
+                    filenameEditText.append(String.format("%s ", selectedFinger));
                 } else if (checkedId == R.id.right_ringfinger_rb) {
                     selectedFinger = rightRingFinger.getText().toString();
-                    fingerTextView.setText(selectedFinger);
+                    filenameEditText.append(String.format("%s ", selectedFinger));
                 } else if (checkedId == R.id.right_littlefinger_rb) {
                     selectedFinger = rightLittleFinger.getText().toString();
-                    fingerTextView.setText(selectedFinger);
+                    filenameEditText.append(String.format("%s ", selectedFinger));
                 } else if (checkedId == R.id.unknow_finger_rb) {
                     selectedFinger = unknownFingerButton.getText().toString();
-                    fingerTextView.setText(selectedFinger);
+                    filenameEditText.append(String.format("%s ", selectedFinger));
                 }
             }
         });
@@ -122,13 +116,13 @@ public class SaveFpActivity extends AppCompatActivity {
             public void onCheckedChanged(RadioGroup group, int checkedId) {
                 if (checkedId == R.id.left_hand) {
                     selectedHand = leftHand.getText().toString();
-                    handTextView.setText(selectedHand);
+                    filenameEditText.setText(String.format("%s ", selectedHand));
                 } else if (checkedId == R.id.right_hand) {
                     selectedHand = rightHand.getText().toString();
-                    handTextView.setText(selectedHand);
+                    filenameEditText.setText(String.format("%s ", selectedHand));
                 } else if (checkedId == R.id.unknown_hand_rb) {
-                    selectedFinger = unknownHandButton.getText().toString();
-                    fingerTextView.setText(selectedFinger);
+                    selectedHand = unknownHandButton.getText().toString();
+                    filenameEditText.setText(String.format("%s ", selectedHand));
                 }
             }
         });
@@ -148,15 +142,16 @@ public class SaveFpActivity extends AppCompatActivity {
         if (saveFpPreview.getDrawable() != null && !isExternalStorageAvailable() && isChecked()) {
             Timber.d("External Storage Unavailable");
             saveToInternalStorage(bitmapFp);
-
+            finish();
         } else if (saveFpPreview.getDrawable() != null && isExternalStorageAvailable() && isChecked()) {
             Timber.d("External Storage Available");
             saveToExternalStorage(bitmapFp);
+            finish();
 
         } else if (saveFpPreview.getDrawable() != null && !isExternalStorageAvailable() && !isChecked()) {
             Timber.d("No finger Selected");
             MaterialDialog.Builder builder = new MaterialDialog.Builder(this);
-            dialog = builder.title(R.string.error_title_save)
+            MaterialDialog dialog = builder.title(R.string.error_title_save)
                     .customView(R.layout.dialog_savefp_error, true)
                     .cancelable(true)
                     .positiveText(android.R.string.ok)
@@ -165,21 +160,15 @@ public class SaveFpActivity extends AppCompatActivity {
         }
     }
 
-    public void showFpImage(Bitmap fingerPrint) {
-        saveFpPreview.setImageBitmap(fingerPrint);
-    }
-
     public boolean isChecked() {
-        return rightRadioGroup.getCheckedRadioButtonId() != -1 || leftRadioGroup.getCheckedRadioButtonId() != -1;
+        return rightRadioGroup.getCheckedRadioButtonId() != -1 && leftRadioGroup.getCheckedRadioButtonId() != -1;
     }
 
     private void saveToInternalStorage(Bitmap bitmapImage) {
 
-        String fileName = filenameText.getText().toString();
+        String fileName = filenameEditText.getText().toString();
         String extension = extensionTextView.getText().toString();
-        String handName = handTextView.getText().toString();
-        String fingerName = fingerTextView.getText().toString();
-        String userFilename = handName + fingerName + fileName + extension;
+        String userFilename = fileName + extension;
 
         File storageLoc = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
         File fpSave = new File(storageLoc, userFilename);
@@ -208,12 +197,9 @@ public class SaveFpActivity extends AppCompatActivity {
 
     public void saveToExternalStorage(Bitmap bitmapImage) {
 
-        String fileName = filenameText.getText().toString();
+        String fileName = filenameEditText.getText().toString();
         String extension = extensionTextView.getText().toString();
-        String handName = handTextView.getText().toString();
-        String fingerName = fingerTextView.getText().toString();
-        String userFilename = handName + fingerName + fileName + extension;
-
+        String userFilename = fileName + extension;
 
         File storageExternalLoc = Environment.getExternalStorageDirectory();
         File fpSave = new File(storageExternalLoc, userFilename);
