@@ -15,6 +15,8 @@ import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.afollestad.materialdialogs.MaterialDialog;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -23,12 +25,17 @@ import fr.coppernic.sample.columbofp.R;
 import fr.coppernic.samples.fp.columbo.fingerprint.FingerPrint;
 import fr.coppernic.samples.fp.columbo.fingerprint.IBScanFingerPrint;
 import fr.coppernic.samples.fp.columbo.settings.PreferencesActivity;
+import fr.coppernic.sdk.hdk.cone.GpioPort;
 import fr.coppernic.sdk.power.PowerManager;
 import fr.coppernic.sdk.power.api.PowerListener;
 import fr.coppernic.sdk.power.api.peripheral.Peripheral;
 import fr.coppernic.sdk.power.impl.cone.ConePeripheral;
 import fr.coppernic.sdk.utils.core.CpcResult;
 import fr.coppernic.sdk.utils.helpers.OsHelper;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
+import io.reactivex.schedulers.Schedulers;
 import timber.log.Timber;
 
 public class MainActivity extends AppCompatActivity {
@@ -47,6 +54,19 @@ public class MainActivity extends AppCompatActivity {
 
     private FingerPrint fingerprintReader;
     private SpotsDialog spotsDialog;
+    private GpioPort gpioPort;
+
+    private final Consumer<Throwable> onError = new Consumer<Throwable>() {
+        @Override
+        public void accept(Throwable throwable) {
+            if (throwable instanceof CpcResult.ResultException) {
+                CpcResult.ResultException e = (CpcResult.ResultException) throwable;
+                if (e.getResult() == CpcResult.RESULT.SERVICE_NOT_FOUND) {
+                    Timber.e(e);
+                }
+            }
+        }
+    };
 
     private final PowerListener powerListener = new PowerListener() {
         @Override
@@ -111,12 +131,17 @@ public class MainActivity extends AppCompatActivity {
         super.onStart();
         showFAB(false);
         PowerManager.get().registerListener(powerListener);
-
-        if (!checkPermission()) {
-            requestPermission();
-        } else {
-            powerOn(true);
-        }
+        Disposable subscribe = GpioPort.GpioManager.get()
+                .getGpioSingle(getApplicationContext())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(g -> {
+                    gpioPort = g;
+                    if (!checkPermission()) {
+                        requestPermission();
+                    } else {
+                        powerOn();
+                    }
+                }, onError);
     }
 
     @Override
@@ -126,7 +151,7 @@ public class MainActivity extends AppCompatActivity {
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    powerOn(true);
+                    powerOn();
                 } else {
                     // For this sample, we ask permission again
                     requestPermission();
@@ -139,9 +164,17 @@ public class MainActivity extends AppCompatActivity {
     protected void onStop() {
         Timber.d("onStop");
         fingerprintReader.tearDown();
-        powerOn(false);
-        PowerManager.get().unregisterListener(powerListener);
-        stopProgress();
+        ConePeripheral.FP_IB_COLOMBO_USB.getDescriptor()
+                .power(this, false)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(result -> {
+                    gpioPort.setPin3(false);
+                    gpioPort.setPinUsbEn(false);
+                    gpioPort.setPinUsbIdSw(false);
+                    PowerManager.get().unregisterListener(powerListener);
+                    stopProgress();
+                });
         super.onStop();
     }
 
@@ -151,13 +184,10 @@ public class MainActivity extends AppCompatActivity {
         fingerprintReader.capture();
     }
 
-
-    private void powerOn(boolean on) {
-        if (on) {
-            ConePeripheral.FP_IB_COLOMBO_USB.on(this);
-        } else {
-            ConePeripheral.FP_IB_COLOMBO_USB.off(this);
-        }
+    private void powerOn() {
+        gpioPort.setPin3(true);
+        gpioPort.setPinUsbEn(true);
+        ConePeripheral.FP_IB_COLOMBO_USB.on(this);
     }
 
 
