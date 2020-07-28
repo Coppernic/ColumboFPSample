@@ -164,14 +164,15 @@ public class MainActivity extends AppCompatActivity {
     protected void onStop() {
         Timber.d("onStop");
         fingerprintReader.tearDown();
-        ConePeripheral.FP_IB_COLOMBO_USB.getDescriptor()
+        Disposable subscribe = ConePeripheral.FP_IB_COLOMBO_USB.getDescriptor()
                 .power(this, false)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(result -> {
-                    gpioPort.setPin3(false);
-                    gpioPort.setPinUsbEn(false);
                     gpioPort.setPinUsbIdSw(false);
+                    gpioPort.setPinUsbEn(false);
+                    gpioPort.setPin3(false);
+                    gpioPort.setPinEn(false);
                     PowerManager.get().unregisterListener(powerListener);
                     stopProgress();
                 });
@@ -185,8 +186,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void powerOn() {
-        gpioPort.setPin3(true);
-        gpioPort.setPinUsbEn(true);
         ConePeripheral.FP_IB_COLOMBO_USB.on(this);
     }
 
