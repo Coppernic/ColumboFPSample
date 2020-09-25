@@ -60,6 +60,7 @@ public class IBScanFingerPrint implements FingerPrint {
             try {
                 IBScan.DeviceDesc deviceDesc = reader.getDeviceDescription(0);
                 Settings settings = new Settings(ctx);
+                settings.setSdkVersion(reader.getSdkVersion().file);
                 settings.setReaderName(deviceDesc.productName);
                 settings.setFirmwareVersion(deviceDesc.fwVersion);
                 settings.setSerialNumber(deviceDesc.serialNumber);
@@ -91,6 +92,7 @@ public class IBScanFingerPrint implements FingerPrint {
         try {
             //Index of device that will be initialized it is always 0 has there is only on Finger Print Reader
             IBScan.DeviceDesc deviceDesc = reader.getDeviceDescription(0);
+
             if (!deviceDesc.productName.contains(PRODUCT_NAME)) {
                 return;
             }

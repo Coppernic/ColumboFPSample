@@ -33,6 +33,12 @@ public class Settings {
         editor.apply();
     }
 
+    public void setSdkVersion(String value) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(context.getString(R.string.pref_sdk_version), value);
+        editor.apply();
+    }
+
     public void setFirmwareVersion(String value) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString(context.getString(R.string.pref_firmware_version), value);

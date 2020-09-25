@@ -17,6 +17,9 @@
             android:key="@string/pref_reader_name"
             android:title="@string/reader_name" />
         <android.support.v7.preference.Preference
+            android:key="@string/pref_sdk_version"
+            android:title="@string/sdk_version" />
+        <android.support.v7.preference.Preference
             android:key="@string/pref_serial_number"
             android:title="@string/serial_number" />
         <android.support.v7.preference.Preference
