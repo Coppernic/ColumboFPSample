@@ -1,7 +1,6 @@
 package fr.coppernic.samples.fp.columbo.fingerprint;
 
 import android.app.Activity;
-import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Handler;
@@ -24,7 +23,7 @@ import fr.coppernic.sample.columbofp.R;
 import fr.coppernic.sdk.utils.util.Preconditions;
 import timber.log.Timber;
 
-public class FpDialogManager {
+class FpDialogManager {
 
     private final WeakReference<Context> context;
     private final MaterialDialog dialog;
@@ -41,7 +40,6 @@ public class FpDialogManager {
         @Override
         public void onClick(@NonNull MaterialDialog materialDialog, @NonNull DialogAction dialogAction) {
             Timber.v("OnNegative");
-            // Schedulers.io().scheduleDirect(disposeAndClose);
         }
     };
     private TextView fpMessage;
@@ -80,14 +78,15 @@ public class FpDialogManager {
 
         if (dialog.getWindow() != null) {
             View v = dialog.getWindow().getDecorView();
-            fpMessage = v.findViewById(R.id.fpMessage);
-            mIvView = v.findViewById(R.id.fingerPrintView);
+            fpMessage = v.findViewById(R.id.fpErrorMessage);
+            mIvView = v.findViewById(R.id.errorpicto);
         }
     }
 
     void show(FingerPrint.Listener listener) {
         this.listener = Preconditions.checkNotNull(listener);
         if (dialog != null) {
+            dialog.getActionButton(DialogAction.NEUTRAL).setEnabled(false);
             dialog.getActionButton(DialogAction.POSITIVE).setEnabled(false);
             mIvView.setImageResource(R.drawable.fingerprint);
             fpMessage.setText(R.string.fp_touch);
@@ -96,7 +95,7 @@ public class FpDialogManager {
         }
     }
 
-    void dismiss() {
+    /*void dismiss() {
         Timber.d("dismiss");
         if (dialog != null) {
             dialog.dismiss();
@@ -105,9 +104,9 @@ public class FpDialogManager {
         listener = null;
     }
 
-    public Dialog getDialog() {
+    /*public Dialog getDialog() {
         return dialog;
-    }
+    }*/
 
     private void startCapture() {
         try {
@@ -184,7 +183,7 @@ public class FpDialogManager {
         public void deviceImageResultExtendedAvailable(IBScanDevice ibScanDevice, IBScanException e, IBScanDevice.ImageData imageData, IBScanDevice.ImageType imageType, int i, IBScanDevice.ImageData[] imageData1, IBScanDevice.SegmentPosition[] segmentPositions) {
             Timber.d("deviceImageResultExtendedAvailable");
             if (e != null) {
-                Timber.e(e.getMessage());
+                e.getMessage();
             }
             ((Activity) context.get()).runOnUiThread(new Runnable() {
                 @Override
@@ -220,5 +219,4 @@ public class FpDialogManager {
 
         }
     };
-
 }

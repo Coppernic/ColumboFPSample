@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:persistentDrawingCache="scrolling"
+    android:scrollbarAlwaysDrawHorizontalTrack="false"
+    android:scrollbarAlwaysDrawVerticalTrack="false">
+
+
+    <Button
+        android:id="@+id/cancel_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:layout_marginBottom="32dp"
+        android:text="@android:string/cancel"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/guideline"
+        app:layout_constraintHorizontal_bias="0.449"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/file_edit_text" />
+
+    <Button
+        android:id="@+id/save_fp_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:text="@string/save_button"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.401"
+        app:layout_constraintStart_toStartOf="@+id/guideline"
+        app:layout_constraintTop_toTopOf="@+id/cancel_button"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <EditText
+        android:id="@+id/file_edit_text"
+        android:layout_width="307dp"
+        android:layout_height="53dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="24dp"
+        android:hint="@string/choose_file_name_editText"
+        android:imeOptions="actionDone"
+        android:singleLine="true"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/right_radio_group" />
+
+    <ImageView
+        android:id="@+id/save_fp_preview"
+        android:layout_width="130dp"
+        android:layout_height="159dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="32dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@android:color/background_light" />
+
+    <RadioGroup
+        android:id="@+id/right_radio_group"
+        android:layout_width="155dp"
+        android:layout_height="190dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="32dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/guideline"
+        app:layout_constraintTop_toBottomOf="@+id/fingername_textview">
+
+        <RadioButton
+            android:id="@+id/right_thumb_rb"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/thumb_rb"
+            android:textAlignment="center" />
+
+        <RadioButton
+            android:id="@+id/right_forefinger_rb"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/forefinger_rb"
+            android:textAlignment="center"
+            tools:layout_editor_absoluteY="32dp" />
+
+        <RadioButton
+            android:id="@+id/right_middlefinger_rb"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/middle_finger_rb"
+            android:textAlignment="center"
+            tools:layout_editor_absoluteY="64dp" />
+
+        <RadioButton
+            android:id="@+id/right_ringfinger_rb"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/ring_finger_rb"
+            android:textAlignment="center"
+            tools:layout_editor_absoluteY="96dp" />
+
+        <RadioButton
+            android:id="@+id/right_littlefinger_rb"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/little_finger_rb"
+            android:textAlignment="center"
+            tools:layout_editor_absoluteY="128dp" />
+
+        <RadioButton
+            android:id="@+id/unknow_finger_rb"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/unknown_finger_rb"
+            android:textAlignment="center"
+            tools:layout_editor_absoluteY="160dp" />
+
+    </RadioGroup>
+
+    <RadioGroup
+        android:id="@+id/left_radio_group"
+        android:layout_width="159dp"
+        android:layout_height="96dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="32dp"
+        android:layout_marginBottom="32dp"
+        app:layout_constraintBottom_toBottomOf="@+id/right_radio_group"
+        app:layout_constraintEnd_toStartOf="@+id/guideline"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView">
+
+        <RadioButton
+            android:id="@+id/left_hand"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/left_hand_rb"
+            android:textAlignment="center" />
+
+        <RadioButton
+            android:id="@+id/right_hand"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/right_hand_rb"
+            android:textAlignment="center"
+            tools:layout_editor_absoluteY="32dp" />
+
+        <RadioButton
+            android:id="@+id/unknown_hand_rb"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/unknown_hand_rb"
+            android:textAlignment="center"
+            tools:layout_editor_absoluteY="64dp" />
+
+    </RadioGroup>
+
+    <TextView
+        android:id="@+id/fingername_textview"
+        android:layout_width="92dp"
+        android:layout_height="19dp"
+        android:layout_marginTop="16dp"
+        android:text="@string/choose_finger_textView"
+        android:textAlignment="center"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/guideline"
+        app:layout_constraintTop_toBottomOf="@+id/save_fp_preview" />
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:layout_marginBottom="32dp"
+        android:text="@string/choose_hand_textView"
+        android:textAlignment="center"
+        app:layout_constraintBottom_toTopOf="@+id/right_radio_group"
+        app:layout_constraintEnd_toStartOf="@+id/guideline"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/save_fp_preview" />
+
+    <TextView
+        android:id="@+id/extentionTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:text="@string/extension_textView"
+        app:layout_constraintBottom_toBottomOf="@+id/file_edit_text"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/file_edit_text"
+        app:layout_constraintTop_toTopOf="@+id/file_edit_text" />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.5" />
+
+</android.support.constraint.ConstraintLayout>

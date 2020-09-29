@@ -1,8 +1,10 @@
 package fr.coppernic.samples.fp.columbo.ui;
 
+import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
@@ -12,6 +14,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -44,9 +47,12 @@ public class MainActivity extends AppCompatActivity {
     Toolbar toolbar;
     @BindView(R.id.imageFingerPrint)
     ImageView fingerPrintImage;
+    @BindView(R.id.fabSave)
+    FloatingActionButton fabSave;
 
     private FingerPrint fingerprintReader;
     private SpotsDialog spotsDialog;
+    public static Bitmap currentImage;
 
     private final PowerListener powerListener = new PowerListener() {
         @Override
@@ -72,9 +78,9 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
+        fabSave.setVisibility(View.INVISIBLE);
         setSupportActionBar(toolbar);
         showFAB(false);
-
         fingerprintReader = new IBScanFingerPrint(this, fpListener);
     }
 
@@ -121,16 +127,13 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        switch (requestCode) {
-            case REQUEST_PERMISSION_CODE: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    powerOn(true);
-                } else {
-                    // For this sample, we ask permission again
-                    requestPermission();
-                }
+        if (requestCode == REQUEST_PERMISSION_CODE) {// If request is cancelled, the result arrays are empty.
+            if (grantResults.length > 0
+                    && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                powerOn(true);
+            } else {
+                // For this sample, we ask permission again
+                requestPermission();
             }
         }
     }
@@ -151,6 +154,11 @@ public class MainActivity extends AppCompatActivity {
         fingerprintReader.capture();
     }
 
+    @OnClick(R.id.fabSave)
+    void saveFp() {
+        Intent intent = new Intent(this, SaveFpActivity.class);
+        this.startActivity(intent);
+    }
 
     private void powerOn(boolean on) {
         if (on) {
@@ -160,11 +168,9 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
     public void showFpImage(Bitmap fingerPrint) {
         fingerPrintImage.setImageBitmap(fingerPrint);
     }
-
 
     public void startProgress() {
         dismissSpots();
@@ -174,12 +180,10 @@ public class MainActivity extends AppCompatActivity {
         spotsDialog.setMessage(getString(R.string.opening_FP_reader));
     }
 
-
     public void stopProgress() {
         fab.setEnabled(true);
         dismissSpots();
     }
-
 
     public void showFAB(boolean value) {
         if (value) {
@@ -190,7 +194,6 @@ public class MainActivity extends AppCompatActivity {
             fab.hide();
         }
     }
-
 
     public void showMessage(String value) {
         tvMessage.setText(value);
@@ -212,6 +215,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onReaderReady(CpcResult.RESULT res) {
             stopProgress();
+
             if (res != CpcResult.RESULT.OK) {//init reader failed
                 showMessage(getString(R.string.FP_opened_error));
             }
@@ -221,12 +225,15 @@ public class MainActivity extends AppCompatActivity {
         public void onAcquisitionCompleted(Bitmap fingerPrint) {
             showFpImage(fingerPrint);
             fingerprintReader.stopCapture();
+            fabSave.setVisibility(View.VISIBLE);
+            currentImage = ((BitmapDrawable) fingerPrintImage.getDrawable()).getBitmap();
         }
     };
 
     private boolean checkPermission() {
         if (OsHelper.isConeV2()) {
-            return ContextCompat.checkSelfPermission(this, FINGER_PRINT_PERMISSION) == PackageManager.PERMISSION_GRANTED;
+            return ContextCompat.checkSelfPermission(this, FINGER_PRINT_PERMISSION) == PackageManager.PERMISSION_GRANTED
+                    && ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
         } else {
             return true;
         }

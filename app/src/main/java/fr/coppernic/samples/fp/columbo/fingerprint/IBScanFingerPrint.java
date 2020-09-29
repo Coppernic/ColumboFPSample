@@ -143,9 +143,9 @@ public class IBScanFingerPrint implements FingerPrint {
             reader.setScanListener(null);
             reader = null;
         }
-        if (fpDialogManager != null) {
+        /*if (fpDialogManager != null) {
             fpDialogManager.dismiss();
-        }
+        }*/
     }
 
     @Override

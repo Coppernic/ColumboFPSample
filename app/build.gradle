@@ -70,6 +70,9 @@ dependencies {
     implementation 'fr.coppernic.sdk.core:CpcCore:1.10.2'
     implementation 'fr.coppernic.external.ibscanultimate:IBSanUltimateAndroid:3.0.0'
 
+    // Ui
+    implementation 'fr.coppernic.lib:splash:0.1.0'
+
     // Butter knife
     implementation 'com.jakewharton:butterknife:8.8.1'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
