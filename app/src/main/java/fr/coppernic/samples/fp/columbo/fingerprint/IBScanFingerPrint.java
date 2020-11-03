@@ -55,7 +55,6 @@ public class IBScanFingerPrint implements FingerPrint {
             listener.onReaderReady(CpcResult.RESULT.INVALID_CONTEXT);
         } else {
             reader = IBScan.getInstance(ctx);
-            reader.setContext(context.get());
             reader.setScanListener(ibScanListener);
             try {
                 IBScan.DeviceDesc deviceDesc = reader.getDeviceDescription(0);
@@ -141,7 +140,6 @@ public class IBScanFingerPrint implements FingerPrint {
     public void tearDown() {
         if (reader != null) {
             close();
-            reader.setContext(null);
             reader.setScanListener(null);
             reader = null;
         }
