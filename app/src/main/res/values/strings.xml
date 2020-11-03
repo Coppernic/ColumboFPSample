@@ -12,6 +12,8 @@
     <string name="reader_name">Reader Name</string>
     <string name="pref_serial_number">pref_serial_number</string>
     <string name="serial_number">Serial Number</string>
+    <string name="pref_sdk_version">pref_sdk_version</string>
+    <string name="sdk_version">IB SDK version</string>
     <string name="pref_timeout">pref_timeoutr</string>
     <string name="timeout">Capture Timeout</string>
     <string name="pref_power_save_mode">pref_power_save_mode</string>

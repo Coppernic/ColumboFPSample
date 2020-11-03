@@ -55,11 +55,11 @@ public class IBScanFingerPrint implements FingerPrint {
             listener.onReaderReady(CpcResult.RESULT.INVALID_CONTEXT);
         } else {
             reader = IBScan.getInstance(ctx);
-            reader.setContext(context.get());
             reader.setScanListener(ibScanListener);
             try {
                 IBScan.DeviceDesc deviceDesc = reader.getDeviceDescription(0);
                 Settings settings = new Settings(ctx);
+                settings.setSdkVersion(reader.getSdkVersion().file);
                 settings.setReaderName(deviceDesc.productName);
                 settings.setFirmwareVersion(deviceDesc.fwVersion);
                 settings.setSerialNumber(deviceDesc.serialNumber);
@@ -91,6 +91,7 @@ public class IBScanFingerPrint implements FingerPrint {
         try {
             //Index of device that will be initialized it is always 0 has there is only on Finger Print Reader
             IBScan.DeviceDesc deviceDesc = reader.getDeviceDescription(0);
+
             if (!deviceDesc.productName.contains(PRODUCT_NAME)) {
                 return;
             }
@@ -114,7 +115,12 @@ public class IBScanFingerPrint implements FingerPrint {
         Timber.d("CLOSE");
         if (readerDevice != null) {
             try {
-                readerDevice.close();
+		if (readerDevice.isOpened()) {
+		    if (readerDevice.isCaptureActive()) {
+			readerDevice.cancelCaptureImage();
+		    }
+		    readerDevice.close();
+		}
             } catch (IBScanException e) {
                 Timber.e("Issue during device close(exception: " + e + ")");
                 e.printStackTrace();
@@ -139,7 +145,6 @@ public class IBScanFingerPrint implements FingerPrint {
     public void tearDown() {
         if (reader != null) {
             close();
-            reader.setContext(null);
             reader.setScanListener(null);
             reader = null;
         }

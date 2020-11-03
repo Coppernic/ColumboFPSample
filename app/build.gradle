@@ -9,7 +9,7 @@ copper {
     projectName = "ColumboFpSample"
 
     publications {
-        artiConfig = project.hasProperty('artiServer') ? project.artiServer : "arti01"
+        artiConfig = project.hasProperty('artiServer') ? project.artiServer : "artifactory"
     }
 }
 
@@ -67,8 +67,8 @@ dependencies {
 
     // Coppernic
     implementation 'fr.coppernic.sdk.cpcutils:CpcUtilsLib:6.19.1'
-    implementation 'fr.coppernic.sdk.core:CpcCore:1.10.2'
-    implementation 'fr.coppernic.external.ibscanultimate:IBSanUltimateAndroid:3.0.0'
+    implementation 'fr.coppernic.sdk.core:CpcCore:1.11.2'
+    implementation 'fr.coppernic.external.ibscanultimate:IBSanUltimateAndroid:3.6.0'
 
     // Butter knife
     implementation 'com.jakewharton:butterknife:8.8.1'

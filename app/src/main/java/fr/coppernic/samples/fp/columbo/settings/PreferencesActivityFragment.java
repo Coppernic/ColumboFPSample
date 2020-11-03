@@ -33,6 +33,7 @@ public class PreferencesActivityFragment extends PreferenceFragmentCompat {
         addPreferencesFromResource(R.xml.prefs);
 
         bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_reader_name)));
+        bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_sdk_version)));
         bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_serial_number)));
         bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_firmware_version)));
         bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_production_revision)));
