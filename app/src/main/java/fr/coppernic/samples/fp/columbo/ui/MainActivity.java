@@ -26,6 +26,7 @@ import fr.coppernic.samples.fp.columbo.settings.PreferencesActivity;
 import fr.coppernic.sdk.power.impl.cone.ConePeripheral;
 import fr.coppernic.sdk.utils.core.CpcResult;
 import fr.coppernic.sdk.utils.helpers.OsHelper;
+import io.reactivex.Single;
 import io.reactivex.SingleObserver;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
@@ -135,6 +136,16 @@ public class MainActivity extends AppCompatActivity {
 
     private void powerOn(final boolean on) {
         ConePeripheral.FP_IB_COLOMBO_USB.getDescriptor().power(this, on)
+                .flatMap(test -> {
+                    if (on) {
+                        return Single.just(CpcResult.RESULT.OK);
+                    } else {
+                        return ConePeripheral.USB_HOST_ASKEY_CONE_GPIO.getDescriptor().power(this
+                                , on);
+                    }
+                })
+                .flatMap(result ->
+                        ConePeripheral.MASTER_ASKEY_CONE_GPIO.getDescriptor().power(this, on))
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe(new SingleObserver<CpcResult.RESULT>() {

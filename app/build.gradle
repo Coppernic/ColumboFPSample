@@ -41,6 +41,10 @@ android {
     packagingOptions {
         exclude 'META-INF/lib_release.kotlin_module'
     }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
 }
 
 String support = "27.1.1"
